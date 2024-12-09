@@ -2,6 +2,7 @@
 using DomiesAPI.Models;
 using DomiesAPI.Models.ModelsDto;
 using DomiesAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +26,7 @@ namespace DomiesAPI.Controllers
         }
 
         [HttpGet]
+
         public async Task<IActionResult> GetALl()
         {
 
@@ -50,6 +52,8 @@ namespace DomiesAPI.Controllers
 
 
         [HttpGet("{id}")]
+
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> GetById(int id)
         {
 
@@ -130,6 +134,7 @@ namespace DomiesAPI.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> DeleteOffer(int id)
         {
             try
