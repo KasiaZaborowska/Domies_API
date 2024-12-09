@@ -14,7 +14,7 @@ namespace DomiesAPI.Services
     public interface IUserService
     {
         Task<string> RegisterUser(UserDto userDto);
-        Task<string> Login(UserDto userDto);
+        Task<string> Login(LoginDto loginDto);
     }
     public class UserService : IUserService
     {
@@ -63,13 +63,13 @@ namespace DomiesAPI.Services
             
         }
 
-        public async Task<string> Login(UserDto userDto)
+        public async Task<string> Login(LoginDto loginDto)
         {
             try
             {
                 var user = _context.Users
                 .Include(u => u.Role)
-                .FirstOrDefault(u => u.Email == userDto.Email);
+                .FirstOrDefault(u => u.Email == loginDto.Email);
 
                 Console.WriteLine(user.Role.Name);
 
@@ -78,7 +78,7 @@ namespace DomiesAPI.Services
                     return "Niepoprawny email lub hasło";
                 }
 
-                var result = _passwordHasher.VerifyHashedPassword(user, user.Password, userDto.Password);
+                var result = _passwordHasher.VerifyHashedPassword(user, user.Password, loginDto.Password);
                 if (result == PasswordVerificationResult.Failed)
                 {
                     return "Niepoprawny email lub hasło";
