@@ -10,6 +10,8 @@ namespace DomiesAPI.Services
         Task<List<OfferDto>> GetOffers();
         Task<List<OfferDto>> GetOfferById(int id);
         Task<OfferDto> CreateOffer(OfferDto offerDto);
+        Task<OfferDto> UpdateOffer(int id, OfferDto offerDto);
+        Task<bool> DeleteOfferById(int id);
     }
     public class OfferService : IOfferService
     {
@@ -131,6 +133,109 @@ namespace DomiesAPI.Services
             {
                 Console.WriteLine($"Wystąpił błąd: {ex.Message}");
                 throw new ApplicationException("Błąd podczas tworzenia oferty", ex);
+            }
+        }
+
+        public async Task<OfferDto> UpdateOffer(int id, OfferDto offerDto)
+        {
+            try
+            {
+                var offerEntity = await _context.Offers
+                    .Include(o => o.Address)
+                    .FirstOrDefaultAsync(o => o.Id == id);
+
+                if (offerEntity == null)
+                {
+                    return null;
+                }
+
+                if (!string.IsNullOrEmpty(offerDto.Title) && offerEntity.Title != offerDto.Title)
+                {
+                    offerEntity.Title = offerDto.Title;
+                }
+
+                if (!string.IsNullOrEmpty(offerDto.Photo) && offerEntity.Photo != offerDto.Photo)
+                {
+                    offerEntity.Photo = offerDto.Photo;
+                }
+
+                if (!string.IsNullOrEmpty(offerDto.Description) && offerEntity.Description != offerDto.Description)
+                {
+                    offerEntity.Description = offerDto.Description;
+                }
+
+                //offerEntity.Title = offerDto.Title;
+                //offerEntity.Photo = offerDto.Photo;
+                //offerEntity.Description = offerDto.Description;
+
+
+                if (offerEntity.Address != null)
+                {
+                    if (!string.IsNullOrEmpty(offerDto.Country) && offerEntity.Address.Country != offerDto.Country)
+                    {
+                        offerEntity.Address.Country = offerDto.Country;
+                    }
+                    if (!string.IsNullOrEmpty(offerDto.City) && offerEntity.Address.City != offerDto.City)
+                    {
+                        offerEntity.Address.City = offerDto.City;
+                    }
+                    if (!string.IsNullOrEmpty(offerDto.Street) && offerEntity.Address.Street != offerDto.Street)
+                    {
+                        offerEntity.Address.Street = offerDto.Street;
+                    }
+                    if (!string.IsNullOrEmpty(offerDto.PostalCode) && offerEntity.Address.PostalCode != offerDto.PostalCode)
+                    {
+                        offerEntity.Address.PostalCode = offerDto.PostalCode;
+                    }
+                    //offerEntity.Address.Country = offerDto.Country;
+                    //offerEntity.Address.City = offerDto.City;
+                    //offerEntity.Address.Street = offerDto.Street;
+                    //offerEntity.Address.PostalCode = offerDto.PostalCode;
+                }
+
+                await _context.SaveChangesAsync();
+
+                return new OfferDto
+                {
+                    Title = offerEntity?.Title,
+                    Photo = offerEntity?.Photo,
+                    Description = offerEntity?.Description,
+
+                    Country = offerEntity.Address?.Country,
+                    City = offerEntity.Address?.City,
+                    Street = offerEntity.Address?.Street,
+                    PostalCode = offerEntity.Address?.PostalCode,
+
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd podczas edytowania oferty", ex);
+            }
+        }
+
+        public async Task<bool> DeleteOfferById(int id)
+        {
+            try
+            {
+                var offerToDelete = await _context.Offers
+                    .Include(o => o.Address)
+                     .FirstOrDefaultAsync(o => o.Id == id);
+
+                if (offerToDelete == null)
+                {
+                    return false;
+                }
+                _context.Offers .Remove(offerToDelete);
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
             }
         }
 
