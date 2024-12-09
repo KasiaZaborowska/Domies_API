@@ -99,5 +99,63 @@ namespace DomiesAPI.Controllers
             }
 
         }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> UpdateOffer(int id, [FromBody] OfferDto offerDto)
+        {
+            try
+            {
+                var updatedOffer = await _offerService.UpdateOffer(id, offerDto);
+
+
+                if (updatedOffer == null)
+                {
+                    //_response.StatusCode = HttpStatusCode.NotFound;
+                    //return NotFound(_response);
+                    return Ok(new { message = "No changes were made to the offer." });
+                }
+
+                _response.Result = updatedOffer;
+                _response.StatusCode = HttpStatusCode.OK;
+                //_response.Result = new { message = "Offer updated successfully." };
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+
+            }
+
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteOffer(int id)
+        {
+            try
+            {
+                var updatedOffer = await _offerService.DeleteOfferById(id);
+
+
+                if (updatedOffer == null)
+                {
+                    //_response.StatusCode = HttpStatusCode.NotFound;
+                    //return NotFound(_response);
+                    return Ok(new { message = "No changes were made to the offer." });
+                }
+
+                _response.Result = updatedOffer;
+                _response.StatusCode = HttpStatusCode.OK;
+                //_response.Result = new { message = "Offer updated successfully." };
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+
+            }
+        }
+
     }
 }
