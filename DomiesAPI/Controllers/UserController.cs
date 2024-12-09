@@ -44,18 +44,18 @@ namespace DomiesAPI.Controllers
 
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromForm] UserDto userdto)
+        public async Task<IActionResult> Login([FromForm] LoginDto loginDto)
         {
             if (ModelState.IsValid)
             {
-                string result = await _userService.Login(userdto);
+                string result = await _userService.Login(loginDto);
                 if (result == "Niepoprawny email lub hasło")
                 {
                     return BadRequest(new { message = result });
                 }
                 else
                 {
-                    return Ok(new { token = result, user = userdto.Email });
+                    return Ok(new { token = result, user = loginDto.Email });
                 }
             }
             return BadRequest(new { message = "Wystąpił błąd w rejestracji." });
