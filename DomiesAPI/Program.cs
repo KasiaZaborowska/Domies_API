@@ -58,6 +58,7 @@ builder.Services.AddScoped<DomiesSeeder>();
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+builder.Services.AddScoped<IOfferService, OfferService>();
 
 var app = builder.Build();
 app.UseCors("AllowAllOrigins");
