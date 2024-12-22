@@ -1,4 +1,5 @@
-﻿using DomiesAPI.Models;
+﻿using Azure;
+using DomiesAPI.Models;
 using DomiesAPI.Models.ModelsDto;
 using DomiesAPI.Services;
 using Microsoft.AspNetCore.Http;
@@ -9,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 
@@ -26,16 +28,29 @@ namespace DomiesAPI.Controllers
         public UserController(IUserService userService)
         {
             //_context = context;
-           // _response = apiResponse;
+           //_response = apiResponse;
             _userService = userService;
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserDto userdto)
         {
-           
-                await _userService.RegisterUser(userdto);
-                return Ok();
+            if (ModelState.IsValid)
+            {
+                string result = await _userService.RegisterUser(userdto);
+                if (result == "Użytkownik z danym mailem już istnieje.")
+                {
+                    return BadRequest(new { message = result });
+                }
+                else
+                {
+                    return Ok(new { token = result, user = userdto.Email });
+                }
+            }
+            return BadRequest(new { message = "Wystąpił błąd w rejestracji." });
+
+            //await _userService.RegisterUser(userdto);
+            //    return Ok();
                 
             
 
@@ -44,7 +59,7 @@ namespace DomiesAPI.Controllers
 
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromForm] LoginDto loginDto)
+        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
             if (ModelState.IsValid)
             {
