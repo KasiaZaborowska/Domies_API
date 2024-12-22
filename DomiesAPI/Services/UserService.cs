@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 
@@ -32,17 +33,27 @@ namespace DomiesAPI.Services
         {
             //try
             //{
-                var roleExists = _context.Roles.Any(r => r.RoleId == userDto.RoleId);
+           User userFromDb = _context.Users
+           .FirstOrDefault(u => u.Email.ToLower() == userDto.Email.ToLower());
+
+            if (userFromDb != null)
+            {           
+                return "Użytkownik z danym mailem już istnieje.";
+                
+            }
+
+            var roleExists = _context.Roles.Any(r => r.RoleId == userDto.RoleId);
                 if (!roleExists)
                 {
                     throw new Exception($"Rola z Id {userDto.RoleId} nie istnieje.");
                 }
+
                 var newUser = new User()
                 {
                     Email = userDto.Email,
                     FirstName = userDto.FirstName,
                     LastName = userDto.LastName,
-                    RoleId = userDto.RoleId
+                    RoleId = 1
                 };
                 var hashedPassword = _passwordHasher.HashPassword(newUser, userDto.Password);
 
@@ -85,9 +96,10 @@ namespace DomiesAPI.Services
                 }
                 var claims = new List<Claim>()
                 {
-                    new Claim(ClaimTypes.NameIdentifier, user.Email.ToString()),
-                    new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
-                    new Claim(ClaimTypes.Role, $"{user.Role.Name}"),
+                    new Claim("Email", user.Email.ToString()),
+                    new Claim("FirstName",user.FirstName),
+                    new Claim("LastName", user.LastName),
+                    new Claim("Role", user.Role.Name),
                 };
 
 
