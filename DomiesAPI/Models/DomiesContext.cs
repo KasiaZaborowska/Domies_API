@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace DomiesAPI.Models;
 
@@ -101,6 +102,36 @@ public partial class DomiesContext : DbContext
                 .HasColumnName("animal_type");
         });
 
+        modelBuilder.Entity<Application>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Applicat__3213E83F1905EB2F");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.ApplicationDateAdd)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("application_date_add");
+            entity.Property(e => e.DateEnd)
+                .HasColumnType("datetime")
+                .HasColumnName("date_end");
+            entity.Property(e => e.DateStart)
+                .HasColumnType("datetime")
+                .HasColumnName("date_start");
+            entity.Property(e => e.OfferId).HasColumnName("offer_id");
+            entity.Property(e => e.ToUser)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("to_user");
+
+            entity.HasOne(d => d.Offer).WithMany(p => p.Applications)
+                .HasForeignKey(d => d.OfferId)
+                .HasConstraintName("FK__Applicati__offer__2A164134");
+
+            entity.HasOne(d => d.ToUserNavigation).WithMany(p => p.Applications)
+                .HasForeignKey(d => d.ToUser)
+                .HasConstraintName("FK__Applicati__to_us__2B0A656D");
+        });
+
         modelBuilder.Entity<Offer>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Offers__3213E83FA0EF4E10");
@@ -154,6 +185,36 @@ public partial class DomiesContext : DbContext
             entity.HasOne(d => d.Offer).WithMany()
                 .HasForeignKey(d => d.OfferId)
                 .HasConstraintName("FK__OfferAnim__offer__49C3F6B7");
+        });
+
+        modelBuilder.Entity<Opinion>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Opinions__3213E83F1A4255FB");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.ApplicationDateAdd)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("application_date_add");
+            entity.Property(e => e.ApplicationId).HasColumnName("application_id");
+            entity.Property(e => e.Comment)
+                .HasColumnType("text")
+                .HasColumnName("comment");
+            entity.Property(e => e.Rating).HasColumnName("rating");
+            entity.Property(e => e.UserEmail)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("user_email");
+
+            entity.HasOne(d => d.Application).WithMany(p => p.Opinions)
+                .HasForeignKey(d => d.ApplicationId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Opinions__applic__2EDAF651");
+
+            entity.HasOne(d => d.UserEmailNavigation).WithMany(p => p.Opinions)
+                .HasForeignKey(d => d.UserEmail)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Opinions__user_e__2FCF1A8A");
         });
 
         modelBuilder.Entity<Role>(entity =>

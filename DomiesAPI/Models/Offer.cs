@@ -20,6 +20,9 @@ public partial class Offer
     public DateTime? DateAdd { get; set; }
 
     public virtual Address Address { get; set; } = null!;
+    public virtual ICollection<Application> Applications { get; set; } = new List<Application>();
+
+
 
     public virtual User HostNavigation { get; set; } = null!;
 }

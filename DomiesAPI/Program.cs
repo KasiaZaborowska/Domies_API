@@ -59,9 +59,24 @@ builder.Services.AddScoped<DomiesSeeder>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IOfferService, OfferService>();
+builder.Services.AddScoped<IAnimalTypeService, AnimalTypeService>();
+
+builder.Services.AddCors(options =>
+{
+    // first policy
+    options.AddPolicy("frontApp", policyBuilder =>
+    {
+        policyBuilder.WithOrigins("http://localhost:3000");
+        policyBuilder.AllowAnyHeader();
+        policyBuilder.AllowAnyMethod();
+        policyBuilder.AllowCredentials();
+    });
+});
+
+
 
 var app = builder.Build();
-app.UseCors("AllowAllOrigins");
+
 
 using (var scope = app.Services.CreateScope())
 {
@@ -82,5 +97,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseCors("frontApp");
 
 app.Run();

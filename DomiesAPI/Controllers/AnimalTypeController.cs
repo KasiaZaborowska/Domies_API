@@ -1,5 +1,6 @@
 ﻿using DomiesAPI.Models;
 using DomiesAPI.Models.ModelsDto;
+using DomiesAPI.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -12,16 +13,19 @@ namespace DomiesAPI.Controllers
     {
         private readonly DomiesContext _context;
         private ApiResponse _response;
-        public AnimalTypeController(DomiesContext context)
+        private IAnimalTypeService _animalTypeService;
+        public AnimalTypeController(DomiesContext context, IAnimalTypeService animalTypeService)
         {
             _context = context;
             _response = new ApiResponse();
+            _animalTypeService = animalTypeService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetALl()
         {
-            _response.Result = _context.AnimalTypes;
+            var animalTypes = await _animalTypeService.GetAnimalTypes();
+            _response.Result = animalTypes;
             _response.StatusCode = HttpStatusCode.OK;
             return Ok(_response);
         }
@@ -34,97 +38,68 @@ namespace DomiesAPI.Controllers
                 _response.IsSuccess = false;
                 return BadRequest(_response);
             }
+            var animalType = await _animalTypeService.GetAnimalTypesById(id);
 
-            AnimalType type = _context.AnimalTypes.FirstOrDefault(u =>u.Id == id);
 
-            if (type == null)
+            if (animalType == null)
             {
                 _response.StatusCode = HttpStatusCode.NotFound;
                 return NotFound(_response);
             }
 
-            _response.Result = type;
+            _response.Result = animalType;
             _response.StatusCode = HttpStatusCode.OK;
             return Ok(_response);
         }
 
         [HttpPost]
-        public async Task<ActionResult<ApiResponse>> CreateTypeOfAnimal([FromBody] AnimalTypeDto typeOfAnimalDto)
+        public async Task<ActionResult<ApiResponse>> CreateTypeOfAnimal([FromBody] AnimalTypeDto animalTypeDto)
         {
             try
             {
-                if (ModelState.IsValid)
-                {
-                    AnimalType typeOfAnimal = new()
-                    {
-                        Type = typeOfAnimalDto.Type
-                    };
-                    _context.AnimalTypes.Add(typeOfAnimal);
-                    await _context.SaveChangesAsync();
+                var createdAnimalType = await _animalTypeService.CreateAnimalType(animalTypeDto);
 
-                    _response.Result = typeOfAnimal;
-                    _response.StatusCode = HttpStatusCode.Created;
-                    return Ok(_response);
-                }
-                else
+                if (createdAnimalType == null)
                 {
-                    _response.IsSuccess = false;
-                    _response.StatusCode = HttpStatusCode.BadRequest;
-                    _response.ErrorMessages = new List<string> { "Invalid model state." };
+                    return BadRequest(_response);
                 }
+
+                _response.Result = createdAnimalType;
+                _response.StatusCode = HttpStatusCode.Created;
+                return Ok(_response);
             }
             catch (Exception ex)
             {
-                _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+
             }
-            return _response;
         }
 
-        [HttpPut]
+        [HttpPatch("{id}")]
         public async Task<ActionResult<ApiResponse>> UpdateTypeOfAnimal(int id, [FromBody] AnimalTypeDto typeOfAnimalDto)
         {
             try
             {
-                if (ModelState.IsValid)
+                var updatedAnimalType = await _animalTypeService.UpdateAnimalType(id, typeOfAnimalDto);
+
+
+                if (updatedAnimalType == null)
                 {
-                    if (typeOfAnimalDto == null || id != typeOfAnimalDto.AnimalTypeId)
-                    {
-                        _response.StatusCode = HttpStatusCode.BadRequest;
-                        _response.IsSuccess = false;
-                        return BadRequest();
-                    }
-
-                    AnimalType typeOfAnimalfromDb = await _context.AnimalTypes.FindAsync(id);
-                    if (typeOfAnimalfromDb == null)
-                    {
-                        _response.StatusCode = HttpStatusCode.BadRequest;
-                        _response.IsSuccess = false;
-                        return BadRequest();
-                    }
-
-                    typeOfAnimalfromDb.Type = typeOfAnimalDto.Type;
-
-                    _context.AnimalTypes.Update(typeOfAnimalfromDb);
-                    await _context.SaveChangesAsync();
-
-                    _response.Result = typeOfAnimalfromDb;
-                    _response.StatusCode = HttpStatusCode.NoContent;
-                    return Ok(_response);
+                    return Ok(new { message = "No changes were made to the animal type." });
                 }
-                else
-                {
-                    _response.IsSuccess = false;
-                    _response.StatusCode = HttpStatusCode.BadRequest;
-                    _response.ErrorMessages = new List<string> { "Invalid model state." };
-                }
+
+                _response.Result = updatedAnimalType;
+                _response.StatusCode = HttpStatusCode.OK;
+                //_response.Result = new { message = "Offer updated successfully." };
+                return Ok(_response);
             }
             catch (Exception ex)
             {
-                _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+
             }
-            return _response;
         }
 
         [HttpDelete("{id:int}")]
@@ -132,47 +107,28 @@ namespace DomiesAPI.Controllers
         {
             try
             {
-                if (ModelState.IsValid)
+                var animalTypeToDelete = await _animalTypeService.DeleteAnimalTypeById(id);
+
+
+                if (animalTypeToDelete == null)
                 {
-                    if (id == 0)
-                    {
-                        _response.StatusCode = HttpStatusCode.BadRequest;
-                        _response.IsSuccess = false;
-                        return BadRequest();
-                    }
-
-                    AnimalType typeOfAnimalfromDb = await _context.AnimalTypes.FindAsync(id);
-
-                    if (typeOfAnimalfromDb == null)
-                    {
-                        _response.StatusCode = HttpStatusCode.BadRequest;
-                        _response.IsSuccess = false;
-                        return BadRequest();
-                    }
-
-                    _context.AnimalTypes.Remove(typeOfAnimalfromDb);
-                    await _context.SaveChangesAsync();
-
-                    _response.Result = typeOfAnimalfromDb;
-                    _response.StatusCode = HttpStatusCode.NoContent;
-                    return Ok(_response);
+                    //_response.StatusCode = HttpStatusCode.NotFound;
+                    //return NotFound(_response);
+                    return Ok(new { message = "No delete were made to the offer." });
                 }
-                else
-                {
-                    _response.IsSuccess = false;
-                    _response.StatusCode = HttpStatusCode.BadRequest;
-                    _response.ErrorMessages = new List<string> { "Invalid model state." };
-                }
+
+                _response.Result = animalTypeToDelete;
+                _response.StatusCode = HttpStatusCode.OK;
+                //_response.Result = new { message = "Offer updated successfully." };
+                return Ok(_response);
             }
             catch (Exception ex)
             {
-                _response.IsSuccess = false;
-                _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+
             }
 
-            return _response;
         }
-
     }
 }

@@ -52,8 +52,6 @@ namespace DomiesAPI.Controllers
 
 
         [HttpGet("{id}")]
-
-        [Authorize(Roles = "User")]
         public async Task<IActionResult> GetById(int id)
         {
 
@@ -139,17 +137,17 @@ namespace DomiesAPI.Controllers
         {
             try
             {
-                var updatedOffer = await _offerService.DeleteOfferById(id);
+                var offerToDelete = await _offerService.DeleteOfferById(id);
 
 
-                if (updatedOffer == null)
+                if (offerToDelete == null)
                 {
                     //_response.StatusCode = HttpStatusCode.NotFound;
                     //return NotFound(_response);
-                    return Ok(new { message = "No changes were made to the offer." });
+                    return Ok(new { message = "No delete were made to the offer." });
                 }
 
-                _response.Result = updatedOffer;
+                _response.Result = offerToDelete;
                 _response.StatusCode = HttpStatusCode.OK;
                 //_response.Result = new { message = "Offer updated successfully." };
                 return Ok(_response);
