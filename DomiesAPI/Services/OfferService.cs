@@ -8,7 +8,7 @@ namespace DomiesAPI.Services
     public interface IOfferService
     {
         Task<List<OfferDto>> GetOffers();
-        Task<List<OfferDto>> GetOfferById(int id);
+        Task<OfferDto> GetOfferById(int id);
         Task<OfferDto> CreateOffer(OfferDto offerDto);
         Task<OfferDto> UpdateOffer(int id, OfferDto offerDto);
         Task<bool> DeleteOfferById(int id);
@@ -27,7 +27,7 @@ namespace DomiesAPI.Services
             {
                 if (_context.Offers == null)
                 {
-                    throw new ApplicationException("Cars table is not initialized.");
+                    throw new ApplicationException("Offers table is not initialized.");
                 }
 
                 var offersDto = await _context.Offers
@@ -57,7 +57,7 @@ namespace DomiesAPI.Services
             }
         }
 
-        public async Task<List<OfferDto>> GetOfferById(int id)
+        public async Task<OfferDto> GetOfferById(int id)
         {
             try
             {
@@ -78,7 +78,7 @@ namespace DomiesAPI.Services
                          Street = o.Address.Street,
                          PostalCode = o.Address.PostalCode,
                      })
-                    .ToListAsync();
+                    .FirstOrDefaultAsync();
                 Console.WriteLine(offerDto);
                 return offerDto;
             }
