@@ -14,8 +14,6 @@
 
         public DateTime? ApplicationDateAdd { get; set; }
 
-        public virtual ICollection<Opinion> Opinions { get; set; } = new List<Opinion>();
 
-        public virtual User ToUserNavigation { get; set; } = null!;
     }
 }
