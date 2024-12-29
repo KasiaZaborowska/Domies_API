@@ -58,8 +58,9 @@ builder.Services.AddScoped<DomiesSeeder>();
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-builder.Services.AddScoped<IOfferService, OfferService>();
+builder.Services.AddScoped<IOfferService, OfferService>(); 
 builder.Services.AddScoped<IAnimalTypeService, AnimalTypeService>();
+builder.Services.AddScoped<IApplicationService, ApplicationService>();
 
 builder.Services.AddCors(options =>
 {
