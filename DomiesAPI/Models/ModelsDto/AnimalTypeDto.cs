@@ -4,5 +4,6 @@
     {
         public int AnimalTypeId { get; set; }
         public string Type { get; set; }
+        //s
     }
 }
