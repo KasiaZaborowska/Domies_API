@@ -1,6 +1,7 @@
 ﻿using Azure;
 using DomiesAPI.Models;
 using DomiesAPI.Models.ModelsDto;
+using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.EntityFrameworkCore;
 
 namespace DomiesAPI.Services
@@ -10,6 +11,7 @@ namespace DomiesAPI.Services
         Task<List<ApplicationDto>> GetApplications();
         Task<ApplicationDto> GetApplicationById(int id);
         Task<ApplicationDto> CreateApplication(ApplicationDto applicationDto);
+        Task<ApplicationDto> UpdateApplication(int id, ApplicationDto applicationDto);
        // Task<ApplicationDto> UpdateApplication(int id, ApplicationDto applicationDto);
         Task<bool> DeleteApplicationById(int id);
     }
@@ -90,16 +92,7 @@ namespace DomiesAPI.Services
                     DateEnd = applicationDto.DateEnd,
                     OfferId = applicationDto.OfferId,
                     ToUser = applicationDto.ToUser,
-                    //AddressId = offerDto.AddressId,
                     ApplicationDateAdd = applicationDto.ApplicationDateAdd,
-                    //Address = new Address
-                    //{
-                    //    Country = offerDto.Country,
-                    //    City = offerDto.City,
-                    //    Street = offerDto.Street,
-                    //    PostalCode = offerDto.PostalCode,
-                    //}
-
                 };
 
                 _context.Applications.Add(applicationEntity);
@@ -122,84 +115,52 @@ namespace DomiesAPI.Services
             }
         }
 
-        //public async Task<ApplicationDto> UpdateApplication(int id, ApplicationDto applicationDto)
-        //{
-        //    try
-        //    {
-        //        var applicationEntity = await _context.Applications
-        //            //.Include(o => o.Address)
-        //            .FirstOrDefaultAsync(o => o.Id == id);
+        public async Task<ApplicationDto> UpdateApplication(int id, ApplicationDto applicationDto)
+        {
+            try
+            {
+                var applicationEntity = await _context.Applications
+                    .FirstOrDefaultAsync(o => o.Id == id);
 
-        //        if (applicationEntity == null)
-        //        {
-        //            return null;
-        //        }
+                if (applicationEntity == null)
+                {
+                    return null;
+                }
 
-        //        if (!string.IsNullOrEmpty(applicationEntity.DateStart) && applicationEntity.DateStart != applicationEntity.DateStart)
-        //        {
-        //            applicationEntity.DateStart = applicationEntity.DateStart;
-        //        }
+                
 
-        //        if (!string.IsNullOrEmpty(applicationEntity.Photo) && applicationEntity.Photo != applicationEntity.Photo)
-        //        {
-        //            applicationEntity.Photo = applicationEntity.Photo;
-        //        }
+                if (applicationEntity.DateStart != applicationDto.DateStart)
+                {
+                    applicationEntity.DateStart = applicationDto.DateStart;
+                }
 
-        //        if (!string.IsNullOrEmpty(offerDto.Description) && offerEntity.Description != offerDto.Description)
-        //        {
-        //            offerEntity.Description = offerDto.Description;
-        //        }
-
-        //        //offerEntity.Title = offerDto.Title;
-        //        //offerEntity.Photo = offerDto.Photo;
-        //        //offerEntity.Description = offerDto.Description;
+                if (applicationEntity.DateEnd != applicationDto.DateEnd)
+                {
+                    applicationEntity.DateEnd = applicationDto.DateEnd;
+                }
 
 
-        //        if (offerEntity.Address != null)
-        //        {
-        //            if (!string.IsNullOrEmpty(offerDto.Country) && offerEntity.Address.Country != offerDto.Country)
-        //            {
-        //                offerEntity.Address.Country = offerDto.Country;
-        //            }
-        //            if (!string.IsNullOrEmpty(offerDto.City) && offerEntity.Address.City != offerDto.City)
-        //            {
-        //                offerEntity.Address.City = offerDto.City;
-        //            }
-        //            if (!string.IsNullOrEmpty(offerDto.Street) && offerEntity.Address.Street != offerDto.Street)
-        //            {
-        //                offerEntity.Address.Street = offerDto.Street;
-        //            }
-        //            if (!string.IsNullOrEmpty(offerDto.PostalCode) && offerEntity.Address.PostalCode != offerDto.PostalCode)
-        //            {
-        //                offerEntity.Address.PostalCode = offerDto.PostalCode;
-        //            }
-        //            //offerEntity.Address.Country = offerDto.Country;
-        //            //offerEntity.Address.City = offerDto.City;
-        //            //offerEntity.Address.Street = offerDto.Street;
-        //            //offerEntity.Address.PostalCode = offerDto.PostalCode;
-        //        }
+                var userEmail = applicationEntity.ToUser;
+                applicationEntity.ToUser = userEmail;
 
-        //        await _context.SaveChangesAsync();
 
-        //        return new OfferDto
-        //        {
-        //            Title = offerEntity?.Title,
-        //            Photo = offerEntity?.Photo,
-        //            Description = offerEntity?.Description,
 
-        //            Country = offerEntity.Address?.Country,
-        //            City = offerEntity.Address?.City,
-        //            Street = offerEntity.Address?.Street,
-        //            PostalCode = offerEntity.Address?.PostalCode,
+                await _context.SaveChangesAsync();
 
-        //        };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-        //        throw new ApplicationException("Błąd podczas edytowania oferty", ex);
-        //    }
-        //}
+                return new ApplicationDto
+                {
+                    DateStart = applicationEntity.DateStart,
+                    DateEnd = applicationEntity.DateEnd,
+                    ToUser = applicationEntity.ToUser,
+
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd podczas edytowania oferty", ex);
+            }
+        }
 
         public async Task<bool> DeleteApplicationById(int id)
         {
