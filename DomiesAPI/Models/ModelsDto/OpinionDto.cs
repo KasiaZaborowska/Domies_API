@@ -10,7 +10,7 @@
 
         public int ApplicationId { get; set; }
 
-        public string UserEmail { get; set; } = null!;
+        public string? UserEmail { get; set; } 
 
         public DateTime? ApplicationDateAdd { get; set; }
     }
