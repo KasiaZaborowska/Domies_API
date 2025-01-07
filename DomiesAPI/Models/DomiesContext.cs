@@ -31,6 +31,7 @@ public partial class DomiesContext : DbContext
     public virtual DbSet<User> Users { get; set; }
     public virtual DbSet<Application> Applications { get; set; }
     public virtual DbSet<Opinion> Opinions { get; set; }
+    public virtual DbSet<Photo> Photos { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -102,6 +103,8 @@ public partial class DomiesContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("animal_type");
+
+
         });
 
         modelBuilder.Entity<Application>(entity =>
@@ -141,8 +144,8 @@ public partial class DomiesContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AddressId).HasColumnName("address_id");
             entity.Property(e => e.DateAdd)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime")
+                .HasDefaultValueSql("CONVERT(date, GETDATE())")
+                .HasColumnType("date")
                 .HasColumnName("date_add");
             entity.Property(e => e.Description)
                 .HasColumnType("text")
@@ -151,10 +154,10 @@ public partial class DomiesContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("host");
-            entity.Property(e => e.Photo)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("photo");
+            entity.Property(e => e.PhotoId).HasColumnName("photo_id");
+            entity.Property(e => e.Price)
+                .HasColumnType("decimal(10, 2)")
+                .HasColumnName("price");
             entity.Property(e => e.Title)
                 .HasMaxLength(50)
                 .IsUnicode(false)
@@ -169,24 +172,31 @@ public partial class DomiesContext : DbContext
                 .HasForeignKey(d => d.Host)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Offers__date_add__46E78A0C");
+
+            entity.HasOne(d => d.Photo).WithMany(p => p.Offers)
+                .HasForeignKey(d => d.PhotoId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_Offers_Photo");
+
         });
 
         modelBuilder.Entity<OfferAnimalType>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("OfferAnimalType");
+            entity.HasKey(e => e.Id).HasName("PK_OfferAnimalType_id");
 
+            entity.ToTable("OfferAnimalType");
+
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AnimalTypeId).HasColumnName("animal_type_id");
             entity.Property(e => e.OfferId).HasColumnName("offer_id");
 
-            entity.HasOne(d => d.AnimalType).WithMany()
+            entity.HasOne(d => d.AnimalType).WithMany(p => p.OfferAnimalTypes)
                 .HasForeignKey(d => d.AnimalTypeId)
-                .HasConstraintName("FK__OfferAnim__anima__4AB81AF0");
+                .HasConstraintName("FK__OfferAnim__anima__06CD04F7");
 
-            entity.HasOne(d => d.Offer).WithMany()
+            entity.HasOne(d => d.Offer).WithMany(p => p.OfferAnimalTypes)
                 .HasForeignKey(d => d.OfferId)
-                .HasConstraintName("FK__OfferAnim__offer__49C3F6B7");
+                .HasConstraintName("FK__OfferAnim__offer__05D8E0BE");
         });
 
         modelBuilder.Entity<Opinion>(entity =>
@@ -217,6 +227,25 @@ public partial class DomiesContext : DbContext
                 .HasForeignKey(d => d.UserEmail)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Opinions__user_e__2FCF1A8A");
+        });
+
+        modelBuilder.Entity<Photo>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Photo__3213E83FFD9BBC63");
+
+            entity.ToTable("Photo");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.BinaryData).HasColumnName("binary_data");
+            entity.Property(e => e.Extension)
+                .HasMaxLength(10)
+                .HasColumnName("extension");
+            entity.Property(e => e.Name)
+                .HasMaxLength(255)
+                .HasColumnName("name");
+            entity.Property(e => e.Type)
+                .HasMaxLength(50)
+                .HasColumnName("type");
         });
 
         modelBuilder.Entity<Role>(entity =>
