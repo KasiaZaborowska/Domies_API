@@ -21,6 +21,7 @@
         public string? Street { get; set; } = null!;
 
         public string? PostalCode { get; set; } = null!;
+        public decimal? Price { get; set; }
 
         //public List<AnimalTypeDto>? OfferAnimalTypes { get; set; }
         public string OfferAnimalTypes { get; set; } = null!;
