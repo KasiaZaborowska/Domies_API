@@ -2,6 +2,7 @@
 using DomiesAPI.Models;
 using DomiesAPI.Models.ModelsDto;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace DomiesAPI.Services
 {
@@ -9,7 +10,7 @@ namespace DomiesAPI.Services
     {
         Task<List<OfferDto>> GetOffers();
         Task<OfferDto> GetOfferById(int id);
-        //Task<OfferDto> CreateOffer(OfferDto offerDto);
+        Task<string> CreateOffer(OfferDto offerDto);
         //Task<OfferDto> UpdateOffer(int id, OfferDto offerDto);
         Task<bool> DeleteOfferById(int id);
     }
@@ -42,6 +43,7 @@ namespace DomiesAPI.Services
                          Host = o.Host,
                          //AddressId = o.AddressId,
                          DateAdd = o.DateAdd,
+                         Price = o.Price,
                          Photo = o.Photo != null 
                             ? $"data:{o.Photo.Type};base64,{Convert.ToBase64String(o.Photo.BinaryData)}"
                             : null,
@@ -95,6 +97,7 @@ namespace DomiesAPI.Services
                          Host = o.Host,
                          //AddressId = o.AddressId,
                          DateAdd = o.DateAdd,
+                         Price = o.Price,
                          Photo = o.Photo != null
                             ? $"data:{o.Photo.Type};base64,{Convert.ToBase64String(o.Photo.BinaryData)}"
                             : null,
@@ -121,51 +124,88 @@ namespace DomiesAPI.Services
             }
         }
 
-        //public async Task<OfferDto> CreateOffer(OfferDto offerDto)
-        //{
-        //    try
-        //    {
-        //        var offerEntity = new Offer
-        //        {
-        //            Title = offerDto.Title,
-        //            Description = offerDto.Description,
-        //            Host = offerDto.Host,
-        //            //AddressId = offerDto.AddressId,
-        //            DateAdd = offerDto.DateAdd,
-        //            Address = new Address
-        //            {
-        //                Country = offerDto.Country,
-        //                City = offerDto.City,
-        //                Street = offerDto.Street,
-        //                PostalCode = offerDto.PostalCode,
-        //            }
+        public async Task<string> CreateOffer(OfferDto offerDto)
+        {
+            //if (offerDto.File == null || offerDto.File.Length == 0)
+            //{
+            //    return "Nie przesłano pliku.";
+            //}
 
-        //        };
+            //var offer = _context.Offers
+            //    .FirstOrDefault(p => p.Title == offerDto.Title);
+            //if (offer != null)
+            //{
+            //    return "już istnieje.";
+            //}
 
-        //        _context.Offers.Add(offerEntity);
-        //        await _context.SaveChangesAsync();
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
-        //        return new OfferDto
-        //        {
-        //            Title = offerEntity.Title,
-        //            Photo = offerEntity.Photo,
-        //            Description = offerEntity.Description,
-        //            Host = offerEntity.Host,
-        //            //AddressId = offerEntity.AddressId,
-        //            DateAdd = offerEntity.DateAdd,
-        //            Country = offerEntity.Address.Country,
-        //            City = offerEntity.Address.City,
-        //            Street = offerEntity.Address.Street,
-        //            PostalCode = offerEntity.Address.PostalCode,
+            try
+            {
+                using var memoryStream = new MemoryStream();
+                await offerDto.File.CopyToAsync(memoryStream);
+                var fileBytes = memoryStream.ToArray();
 
-        //        };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-        //        throw new ApplicationException("Błąd podczas tworzenia oferty", ex);
-        //    }
-        //}
+                var photo = new Photo
+                {
+                    BinaryData = fileBytes,
+                    Name = offerDto.File.FileName,
+                    Extension = Path.GetExtension(offerDto.File.FileName),
+                    Type = offerDto.File.ContentType
+                };
+
+                _context.Photos.Add(photo);
+                await _context.SaveChangesAsync();
+
+                var newOffer = new Offer
+                {
+                    Title = offerDto.Title,
+                    Description = offerDto.Description,
+                    Host = offerDto.Host,
+                    Price = offerDto.Price,
+                    DateAdd = offerDto.DateAdd,
+                    Address = new Address
+                    {
+                        Country = offerDto.Country,
+                        City = offerDto.City,
+                        Street = offerDto.Street,
+                        PostalCode = offerDto.PostalCode,
+                    }
+                };
+
+                _context.Offers.Add(newOffer);
+                await _context.SaveChangesAsync();
+
+                if (offerDto.OfferAnimalTypes != null && offerDto.OfferAnimalTypes.Any())
+                {
+                    var animalTypeToOffer = await _context.AnimalTypes
+                        //.Where(at => at.Type.Equals("dog") || at.Type.Equals("cat"))
+                        .Where(at => offerDto.OfferAnimalTypes.Contains(at.Type))
+                        .Select(at => at.Id)
+                        .ToListAsync();
+
+                    foreach (var animalId in animalTypeToOffer)
+                    {
+                        var newAnimalTypeToOffer = new OfferAnimalType
+                        {
+                            OfferId = newOffer.Id,
+                            AnimalTypeId = animalId,
+                        };
+                        _context.OfferAnimalTypes.Add(newAnimalTypeToOffer);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return "Utworzono.";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd podczas tworzenia oferty", ex);
+            }
+        }
 
         //public async Task<OfferDto> UpdateOffer(int id, OfferDto offerDto)
         //{
