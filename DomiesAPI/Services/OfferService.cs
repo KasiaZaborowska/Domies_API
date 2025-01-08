@@ -11,7 +11,7 @@ namespace DomiesAPI.Services
         Task<List<OfferDto>> GetOffers();
         Task<OfferDto> GetOfferById(int id);
         Task<string> CreateOffer(OfferDto offerDto);
-        //Task<OfferDto> UpdateOffer(int id, OfferDto offerDto);
+        Task<string> UpdateOffer(int id, OfferDto offerDto);
         Task<bool> DeleteOfferById(int id);
     }
     public class OfferService : IOfferService
@@ -38,13 +38,13 @@ namespace DomiesAPI.Services
                      .Select(o => new OfferDto
                      {
                          Id = o.Id,
-                         Title = o.Title,
+                         Name = o.Name,
                          Description = o.Description,
                          Host = o.Host,
                          //AddressId = o.AddressId,
                          DateAdd = o.DateAdd,
                          Price = o.Price,
-                         Photo = o.Photo != null 
+                         Photo = o.Photo != null
                             ? $"data:{o.Photo.Type};base64,{Convert.ToBase64String(o.Photo.BinaryData)}"
                             : null,
 
@@ -92,7 +92,7 @@ namespace DomiesAPI.Services
                      .Select(o => new OfferDto
                      {
                          Id = o.Id,
-                         Title = o.Title,
+                         Name = o.Name,
                          Description = o.Description,
                          Host = o.Host,
                          //AddressId = o.AddressId,
@@ -126,17 +126,11 @@ namespace DomiesAPI.Services
 
         public async Task<string> CreateOffer(OfferDto offerDto)
         {
-            //if (offerDto.File == null || offerDto.File.Length == 0)
-            //{
-            //    return "Nie przesłano pliku.";
-            //}
+            if (offerDto.File == null || offerDto.File.Length == 0)
+            {
+                return "nie przesłano pliku.";
+            }
 
-            //var offer = _context.Offers
-            //    .FirstOrDefault(p => p.Title == offerDto.Title);
-            //if (offer != null)
-            //{
-            //    return "już istnieje.";
-            //}
 
             using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -157,13 +151,16 @@ namespace DomiesAPI.Services
                 _context.Photos.Add(photo);
                 await _context.SaveChangesAsync();
 
+                //Console.WriteLine($"Wystąpilo photo : {photo.Id}");
+
                 var newOffer = new Offer
                 {
-                    Title = offerDto.Title,
+                    Name = offerDto.Name,
                     Description = offerDto.Description,
                     Host = offerDto.Host,
                     Price = offerDto.Price,
                     DateAdd = offerDto.DateAdd,
+                    PhotoId = photo.Id,
                     Address = new Address
                     {
                         Country = offerDto.Country,
@@ -207,84 +204,121 @@ namespace DomiesAPI.Services
             }
         }
 
-        //public async Task<OfferDto> UpdateOffer(int id, OfferDto offerDto)
-        //{
-        //    try
-        //    {
-        //        var offerEntity = await _context.Offers
-        //            .Include(o => o.Address)
-        //            .FirstOrDefaultAsync(o => o.Id == id);
+        public async Task<string> UpdateOffer(int id, OfferDto offerDto)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
-        //        if (offerEntity == null)
-        //        {
-        //            return null;
-        //        }
+            try
+            {
+                var offerEntity = await _context.Offers
+                    .Include(o => o.Address)
+                    .FirstOrDefaultAsync(o => o.Id == id);
 
-        //        if (!string.IsNullOrEmpty(offerDto.Title) && offerEntity.Title != offerDto.Title)
-        //        {
-        //            offerEntity.Title = offerDto.Title;
-        //        }
+                if (offerEntity == null)
+                {
+                    return "null";
+                }
 
-        //        if (!string.IsNullOrEmpty(offerDto.Photo) && offerEntity.Photo != offerDto.Photo)
-        //        {
-        //            offerEntity.Photo = offerDto.Photo;
-        //        }
+                if (!string.IsNullOrEmpty(offerDto.Name) && offerEntity.Name != offerDto.Name)
+                {
+                    offerEntity.Name = offerDto.Name;
+                }
 
-        //        if (!string.IsNullOrEmpty(offerDto.Description) && offerEntity.Description != offerDto.Description)
-        //        {
-        //            offerEntity.Description = offerDto.Description;
-        //        }
+                if (offerDto.File == null || offerDto.File.Length == 0)
+                {
+                     Console.WriteLine("nie zamieniamy pliku.");
+                }
+                else
+                {
+                        using var memoryStream = new MemoryStream();
+                        await offerDto.File.CopyToAsync(memoryStream);
+                        var fileBytes = memoryStream.ToArray();
 
-        //        //offerEntity.Title = offerDto.Title;
-        //        //offerEntity.Photo = offerDto.Photo;
-        //        //offerEntity.Description = offerDto.Description;
+                        var photo = new Photo
+                        {
+                            BinaryData = fileBytes,
+                            Name = offerDto.File.FileName,
+                            Extension = Path.GetExtension(offerDto.File.FileName),
+                            Type = offerDto.File.ContentType
+                        };
+
+                        _context.Photos.Add(photo);
+                        await _context.SaveChangesAsync();
+                    
+                }
+
+               
+
+                if (!string.IsNullOrEmpty(offerDto.Description) && offerEntity.Description != offerDto.Description)
+                {
+                    offerEntity.Description = offerDto.Description;
+                }
+                if (offerEntity.Price != offerDto.Price)
+                {
+                    offerEntity.Price = offerDto.Price;
+                }
+
+                //offerEntity.Title = offerDto.Title;
+                //offerEntity.Photo = offerDto.Photo;
+                //offerEntity.Description = offerDto.Description;
 
 
-        //        if (offerEntity.Address != null)
-        //        {
-        //            if (!string.IsNullOrEmpty(offerDto.Country) && offerEntity.Address.Country != offerDto.Country)
-        //            {
-        //                offerEntity.Address.Country = offerDto.Country;
-        //            }
-        //            if (!string.IsNullOrEmpty(offerDto.City) && offerEntity.Address.City != offerDto.City)
-        //            {
-        //                offerEntity.Address.City = offerDto.City;
-        //            }
-        //            if (!string.IsNullOrEmpty(offerDto.Street) && offerEntity.Address.Street != offerDto.Street)
-        //            {
-        //                offerEntity.Address.Street = offerDto.Street;
-        //            }
-        //            if (!string.IsNullOrEmpty(offerDto.PostalCode) && offerEntity.Address.PostalCode != offerDto.PostalCode)
-        //            {
-        //                offerEntity.Address.PostalCode = offerDto.PostalCode;
-        //            }
-        //            //offerEntity.Address.Country = offerDto.Country;
-        //            //offerEntity.Address.City = offerDto.City;
-        //            //offerEntity.Address.Street = offerDto.Street;
-        //            //offerEntity.Address.PostalCode = offerDto.PostalCode;
-        //        }
+                if (offerEntity.Address != null)
+                {
+                    if (!string.IsNullOrEmpty(offerDto.Country) && offerEntity.Address.Country != offerDto.Country)
+                    {
+                        offerEntity.Address.Country = offerDto.Country;
+                    }
+                    if (!string.IsNullOrEmpty(offerDto.City) && offerEntity.Address.City != offerDto.City)
+                    {
+                        offerEntity.Address.City = offerDto.City;
+                    }
+                    if (!string.IsNullOrEmpty(offerDto.Street) && offerEntity.Address.Street != offerDto.Street)
+                    {
+                        offerEntity.Address.Street = offerDto.Street;
+                    }
+                    if (!string.IsNullOrEmpty(offerDto.PostalCode) && offerEntity.Address.PostalCode != offerDto.PostalCode)
+                    {
+                        offerEntity.Address.PostalCode = offerDto.PostalCode;
+                    }
+                    //offerEntity.Address.Country = offerDto.Country;
+                    //offerEntity.Address.City = offerDto.City;
+                    //offerEntity.Address.Street = offerDto.Street;
+                    //offerEntity.Address.PostalCode = offerDto.PostalCode;
+                }
 
-        //        await _context.SaveChangesAsync();
+                if (offerDto.OfferAnimalTypes != null && offerDto.OfferAnimalTypes.Any())
+                {
+                    var animalTypeToOffer = await _context.AnimalTypes
+                        //.Where(at => at.Type.Equals("dog") || at.Type.Equals("cat"))
+                        .Where(at => offerDto.OfferAnimalTypes.Contains(at.Type))
+                        .Select(at => at.Id)
+                        .ToListAsync();
 
-        //        return new OfferDto
-        //        {
-        //            Title = offerEntity?.Title,
-        //            Photo = offerEntity?.Photo,
-        //            Description = offerEntity?.Description,
+                    foreach (var animalId in animalTypeToOffer)
+                    {
+                        var newAnimalTypeToOffer = new OfferAnimalType
+                        {
+                            OfferId = offerEntity.Id,
+                            AnimalTypeId = animalId,
+                        };
+                        _context.OfferAnimalTypes.Add(newAnimalTypeToOffer);
+                    }
+                }
 
-        //            Country = offerEntity.Address?.Country,
-        //            City = offerEntity.Address?.City,
-        //            Street = offerEntity.Address?.Street,
-        //            PostalCode = offerEntity.Address?.PostalCode,
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
 
-        //        };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-        //        throw new ApplicationException("Błąd podczas edytowania oferty", ex);
-        //    }
-        //}
+                await _context.SaveChangesAsync();
+
+                return "Utworzono.";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd podczas edytowania oferty", ex);
+            }
+        }
 
         public async Task<bool> DeleteOfferById(int id)
         {
