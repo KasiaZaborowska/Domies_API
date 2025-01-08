@@ -12,6 +12,7 @@ namespace DomiesAPI.Controllers
 {
     [Route("api/offer")]
     [ApiController]
+
     public class OfferController : ControllerBase
     {
         //private readonly DomiesContext _context;
@@ -78,12 +79,13 @@ namespace DomiesAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddOffer([FromBody] OfferDto offerDto)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> AddOffer([FromForm] OfferDto offerDto)
         {
             try
             {
                 var createdOffer = await _offerService.CreateOffer(offerDto);
-
+                var file = offerDto.File;
                 if (createdOffer == null)
                 {
                     return BadRequest(_response);
@@ -102,34 +104,35 @@ namespace DomiesAPI.Controllers
 
         }
 
-        //[HttpPatch("{id}")]
-        //public async Task<IActionResult> UpdateOffer(int id, [FromBody] OfferDto offerDto)
-        //{
-        //    try
-        //    {
-        //        var updatedOffer = await _offerService.UpdateOffer(id, offerDto);
+        [HttpPatch("{id}")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UpdateOffer(int id, [FromForm] OfferDto offerDto)
+        {
+            try
+            {
+                var updatedOffer = await _offerService.UpdateOffer(id, offerDto);
 
 
-        //        if (updatedOffer == null)
-        //        {
-        //            //_response.StatusCode = HttpStatusCode.NotFound;
-        //            //return NotFound(_response);
-        //            return Ok(new { message = "No changes were made to the offer." });
-        //        }
+                if (updatedOffer == null)
+                {
+                    //_response.StatusCode = HttpStatusCode.NotFound;
+                    //return NotFound(_response);
+                    return Ok(new { message = "No changes were made to the offer." });
+                }
 
-        //        _response.Result = updatedOffer;
-        //        _response.StatusCode = HttpStatusCode.OK;
-        //        //_response.Result = new { message = "Offer updated successfully." };
-        //        return Ok(_response);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-        //        throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+                _response.Result = updatedOffer;
+                _response.StatusCode = HttpStatusCode.OK;
+                //_response.Result = new { message = "Offer updated successfully." };
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
 
-        //    }
+            }
 
-        //}
+        }
 
         [HttpDelete("{id}")]
         //[Authorize(Roles = "User")]
