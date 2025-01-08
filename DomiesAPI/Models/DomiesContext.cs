@@ -158,10 +158,10 @@ public partial class DomiesContext : DbContext
             entity.Property(e => e.Price)
                 .HasColumnType("decimal(10, 2)")
                 .HasColumnName("price");
-            entity.Property(e => e.Title)
+            entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .IsUnicode(false)
-                .HasColumnName("title");
+                .HasColumnName("name");
 
             entity.HasOne(d => d.Address).WithMany(p => p.Offers)
                 .HasForeignKey(d => d.AddressId)
