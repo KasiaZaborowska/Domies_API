@@ -8,8 +8,8 @@ namespace DomiesAPI.Services
 {
     public interface IOfferService
     {
-        Task<List<OfferDto>> GetOffers();
-        Task<OfferDto> GetOfferById(int id);
+        Task<List<OfferDtoRead>> GetOffers();
+        Task<OfferDtoRead> GetOfferById(int id);
         Task<string> CreateOffer(OfferDto offerDto);
         Task<string> UpdateOffer(int id, OfferDto offerDto);
         Task<bool> DeleteOfferById(int id);
@@ -22,7 +22,7 @@ namespace DomiesAPI.Services
             _context = context;
         }
 
-        public async Task<List<OfferDto>> GetOffers()
+        public async Task<List<OfferDtoRead>> GetOffers()
         {
             try
             {
@@ -35,7 +35,7 @@ namespace DomiesAPI.Services
                 var offersDto = await _context.Offers
                     .Include(o => o.Address)
                     .Include(o => o.Photo)
-                     .Select(o => new OfferDto
+                     .Select(o => new OfferDtoRead
                      {
                          Id = o.Id,
                          Name = o.Name,
@@ -81,7 +81,7 @@ namespace DomiesAPI.Services
             }
         }
 
-        public async Task<OfferDto> GetOfferById(int id)
+        public async Task<OfferDtoRead> GetOfferById(int id)
         {
             try
             {
@@ -89,7 +89,7 @@ namespace DomiesAPI.Services
                     .Where(o => o.Id == id)
                     .Include(o => o.Address)
                     .Include(o => o.Photo)
-                     .Select(o => new OfferDto
+                     .Select(o => new OfferDtoRead
                      {
                          Id = o.Id,
                          Name = o.Name,
@@ -212,6 +212,7 @@ namespace DomiesAPI.Services
             {
                 var offerEntity = await _context.Offers
                     .Include(o => o.Address)
+                    .Include(o => o.OfferAnimalTypes)
                     .FirstOrDefaultAsync(o => o.Id == id);
 
                 if (offerEntity == null)
@@ -229,22 +230,30 @@ namespace DomiesAPI.Services
                      Console.WriteLine("nie zamieniamy pliku.");
                 }
                 else
-                {
-                        using var memoryStream = new MemoryStream();
-                        await offerDto.File.CopyToAsync(memoryStream);
-                        var fileBytes = memoryStream.ToArray();
+                {   
+                    if(offerEntity.PhotoId != null)
+                    {
+                        var photoEntity = await _context.Photos.FindAsync(offerEntity.PhotoId);
+                        _context.Photos.Remove(photoEntity);
+                    }
+                    using var memoryStream = new MemoryStream();
+                    await offerDto.File.CopyToAsync(memoryStream);
+                    var fileBytes = memoryStream.ToArray();
 
-                        var photo = new Photo
-                        {
-                            BinaryData = fileBytes,
-                            Name = offerDto.File.FileName,
-                            Extension = Path.GetExtension(offerDto.File.FileName),
-                            Type = offerDto.File.ContentType
-                        };
+                    var photo = new Photo
+                    {
+                        BinaryData = fileBytes,
+                        Name = offerDto.File.FileName,
+                        Extension = Path.GetExtension(offerDto.File.FileName),
+                        Type = offerDto.File.ContentType
+                    };
 
-                        _context.Photos.Add(photo);
-                        await _context.SaveChangesAsync();
-                    
+                    _context.Photos.Add(photo);
+                    await _context.SaveChangesAsync();
+
+                    offerEntity.PhotoId = photo.Id;
+
+
                 }
 
                
@@ -292,8 +301,21 @@ namespace DomiesAPI.Services
                     var animalTypeToOffer = await _context.AnimalTypes
                         //.Where(at => at.Type.Equals("dog") || at.Type.Equals("cat"))
                         .Where(at => offerDto.OfferAnimalTypes.Contains(at.Type))
-                        .Select(at => at.Id)
+                        .Select(at => at.Id)  
                         .ToListAsync();
+
+
+
+                    foreach (var oldOfferAnimalType in offerEntity.OfferAnimalTypes)
+                    {                       
+                        if (!animalTypeToOffer.Any(
+                                    animalId =>
+                                        oldOfferAnimalType.OfferId == id
+                                        && oldOfferAnimalType.AnimalTypeId == animalId
+                                        )
+                            )
+                            _context.OfferAnimalTypes.Remove(oldOfferAnimalType);
+                    }
 
                     foreach (var animalId in animalTypeToOffer)
                     {
@@ -302,14 +324,23 @@ namespace DomiesAPI.Services
                             OfferId = offerEntity.Id,
                             AnimalTypeId = animalId,
                         };
+                        if ( !await _context.OfferAnimalTypes
+                                .AnyAsync( 
+                                    existing => 
+                                        newAnimalTypeToOffer.OfferId == existing.OfferId
+                                        && newAnimalTypeToOffer.AnimalTypeId == existing.AnimalTypeId 
+                                        )
+                            )
                         _context.OfferAnimalTypes.Add(newAnimalTypeToOffer);
                     }
+
+                    
+
+                    
                 }
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
-
-                await _context.SaveChangesAsync();
 
                 return "Utworzono.";
             }
@@ -332,6 +363,12 @@ namespace DomiesAPI.Services
                 {
                     return false;
                 }
+                if (offerToDelete.PhotoId != null)
+                {
+                    var photoEntity = await _context.Photos.FindAsync(offerToDelete.PhotoId);
+                    _context.Photos.Remove(photoEntity);
+                }
+
                 _context.Offers .Remove(offerToDelete);
                 await _context.SaveChangesAsync();
 
