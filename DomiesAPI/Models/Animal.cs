@@ -18,4 +18,6 @@ public partial class Animal
     public virtual AnimalType AnimalTypeNavigation { get; set; } = null!;
 
     public virtual User OwnerNavigation { get; set; } = null!;
+
+    public virtual ICollection<Application> Applications { get; set; } = new List<Application>();
 }
