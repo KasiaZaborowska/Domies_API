@@ -135,6 +135,23 @@ public partial class DomiesContext : DbContext
             entity.HasOne(d => d.ToUserNavigation).WithMany(p => p.Applications)
                 .HasForeignKey(d => d.ToUser)
                 .HasConstraintName("FK__Applicati__to_us__2B0A656D");
+
+            entity.HasMany(d => d.Animals).WithMany(p => p.Applications)
+                .UsingEntity<Dictionary<string, object>>(
+                    "ApplicationsAnimal",
+                    r => r.HasOne<Animal>().WithMany()
+                        .HasForeignKey("AnimalId")
+                        .HasConstraintName("FK__Applicati__anima__51300E55"),
+                    l => l.HasOne<Application>().WithMany()
+                        .HasForeignKey("ApplicationId")
+                        .HasConstraintName("FK__Applicati__appli__503BEA1C"),
+                    j =>
+                    {
+                        j.HasKey("ApplicationId", "AnimalId").HasName("PK__Applicat__062D5C0BE76D7449");
+                        j.ToTable("ApplicationsAnimals");
+                        j.IndexerProperty<int>("ApplicationId").HasColumnName("application_id");
+                        j.IndexerProperty<int>("AnimalId").HasColumnName("animal_id");
+                    });
         });
 
         modelBuilder.Entity<Offer>(entity =>
