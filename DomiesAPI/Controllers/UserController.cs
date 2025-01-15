@@ -2,6 +2,7 @@
 using DomiesAPI.Models;
 using DomiesAPI.Models.ModelsDto;
 using DomiesAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
