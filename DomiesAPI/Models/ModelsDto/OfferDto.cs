@@ -26,6 +26,7 @@
         //public List<AnimalTypeDto>? OfferAnimalTypes { get; set; }
         public List<string>? OfferAnimalTypes { get; set; } = null!;
 
+        
 
         public IFormFile? File { get; set; }
         public string? Photo { get; set; }
