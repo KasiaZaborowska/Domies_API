@@ -35,6 +35,7 @@ namespace DomiesAPI.Services
                 var offersDto = await _context.Offers
                     .Include(o => o.Address)
                     .Include(o => o.Photo)
+                    .Include(o => o.Applications)
                      .Select(o => new OfferDtoRead
                      {
                          Id = o.Id,
@@ -58,6 +59,8 @@ namespace DomiesAPI.Services
                             o.OfferAnimalTypes
                             .Select(oat => oat.AnimalType.Type)),
 
+                         //Applications = o.Applications
+                         // DO DODANIA WYSWITANIE APLIAKCJI !!!!!!!!!!!!!!!
 
                          //OfferAnimalTypes = o.OfferAnimalType != null 
                          //? o.OfferAnimalType
