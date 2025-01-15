@@ -3,17 +3,18 @@ using DomiesAPI.Models;
 using DomiesAPI.Models.ModelsDto;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace DomiesAPI.Services
 {
     public interface IApplicationService
     {
-        Task<List<ApplicationDto>> GetApplications();
-        Task<ApplicationDto> GetApplicationById(int id);
-        Task<ApplicationDto> CreateApplication(ApplicationDto applicationDto);
-        Task<ApplicationDto> UpdateApplication(int id, ApplicationDto applicationDto);
+        Task<List<ApplicationDtoRead>> GetApplications(String userEmail);
+        Task<ApplicationDto> GetApplicationById(int id, String userEmail);
+        Task<string> CreateApplication(ApplicationDto applicationDto, String userEmail);
+        Task<string> UpdateApplication(int id, ApplicationDto applicationDto, String userEmail);
        // Task<ApplicationDto> UpdateApplication(int id, ApplicationDto applicationDto);
-        Task<bool> DeleteApplicationById(int id);
+        Task<bool> DeleteApplicationById(int id, String userEmail);
     }
     public class ApplicationService : IApplicationService
     {
@@ -23,7 +24,7 @@ namespace DomiesAPI.Services
             _context = context;
         }
 
-        public async Task<List<ApplicationDto>> GetApplications()
+        public async Task<List<ApplicationDtoRead>> GetApplications(String userEmail)
         {
             try
             {
@@ -34,15 +35,41 @@ namespace DomiesAPI.Services
 
                 var applicationsDto = await _context.Applications
                     //.Include(o => o.Address)
-                     .Select(a => new ApplicationDto
+                    
+                    .Where(a => a.ToUser == userEmail)
+                    .Include(o => o.Animals)
+                     .Select(a => new ApplicationDtoRead
                      {
                          Id = a.Id,
                          DateStart = a.DateStart,
                          DateEnd = a.DateEnd,
                          OfferId = a.OfferId,
-                         ToUser = a.ToUser,
+                         ToUser = userEmail,
                          ApplicationDateAdd = a.ApplicationDateAdd,
                          //City = o.Address.City,
+
+                         //Animals = string.Join(", ",
+                         //   o.OfferAnimalTypes
+                         //   .Select(oat => oat.AnimalType.Type)),
+
+                         //Animals = string.Join(", ",
+                         //   a.Animals
+                         //   .Select(oat => oat.AnimalType.Type)),
+
+                         Animals = a.Animals != null
+                         ? a.Animals
+                         .AsEnumerable()
+                         .Select(
+                            an => new AnimalDto
+                            {
+                                PetName = an.PetName,
+                                SpecificDescription = an.SpecificDescription,
+                                AnimalType = an.AnimalType,
+                                Type = an.AnimalTypeNavigation.Type,
+
+                            }).ToList()
+                            : null,
+                         // ta łączona s  READ = o. ICOLLECTION OFFER ANIMAL TYPEs
                      })
                     .ToListAsync();
                 Console.WriteLine(applicationsDto);
@@ -55,11 +82,12 @@ namespace DomiesAPI.Services
             }
         }
 
-        public async Task<ApplicationDto> GetApplicationById(int id)
+        public async Task<ApplicationDto> GetApplicationById(int id, String userEmail)
         {
             try
             {
                 var applicationDto = await _context.Applications
+                    .Where(a => a.ToUser == userEmail)
                     .Where(a => a.Id == id)
                     //.Include(o => o.Address)
                      .Select(a => new ApplicationDto
@@ -68,7 +96,7 @@ namespace DomiesAPI.Services
                          DateStart = a.DateStart,
                          DateEnd = a.DateEnd,
                          OfferId = a.OfferId,
-                         ToUser = a.ToUser,
+                         ToUser = userEmail,
                          ApplicationDateAdd = a.ApplicationDateAdd,
                      })
                     .FirstOrDefaultAsync();
@@ -82,8 +110,10 @@ namespace DomiesAPI.Services
             }
         }
 
-        public async Task<ApplicationDto> CreateApplication(ApplicationDto applicationDto)
+        public async Task<string> CreateApplication(ApplicationDto applicationDto, String userEmail)
         {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
             try
             {
                 var applicationEntity = new Application
@@ -95,18 +125,31 @@ namespace DomiesAPI.Services
                     ApplicationDateAdd = applicationDto.ApplicationDateAdd,
                 };
 
+                
+
+                if (applicationDto.AnimalsInt != null && applicationDto.AnimalsInt.Any())
+                {
+                    var animalToApplication = await _context.Animals
+                        //.Where(at => at.Type.Equals("dog") || at.Type.Equals("cat"))
+                        .Where(at => applicationDto.AnimalsInt.Contains(at.Id))
+                        //.Select(at => at.Id)
+                        .ToListAsync();
+
+                    //applicationEntity.Animals = animalToApplication;
+
+                    foreach (var animal in animalToApplication)
+                    {
+                        applicationEntity.Animals.Add(animal);
+                        animal.Applications.Add(applicationEntity);
+                    }
+ 
+                }
+
                 _context.Applications.Add(applicationEntity);
                 await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
 
-                return new ApplicationDto
-                {
-                    DateStart = applicationEntity.DateStart,
-                    DateEnd = applicationEntity.DateEnd,
-                    OfferId = applicationEntity.OfferId,
-                    ToUser = applicationEntity.ToUser,
-                    ApplicationDateAdd = applicationEntity.ApplicationDateAdd,
-
-                };
+                return "Stworzono aplikację.";
             }
             catch (Exception ex)
             {
@@ -115,11 +158,12 @@ namespace DomiesAPI.Services
             }
         }
 
-        public async Task<ApplicationDto> UpdateApplication(int id, ApplicationDto applicationDto)
+        public async Task<string> UpdateApplication(int id, ApplicationDto applicationDto, String userEmail)
         {
             try
             {
                 var applicationEntity = await _context.Applications
+                    .Where(a => a.ToUser == userEmail)
                     .FirstOrDefaultAsync(o => o.Id == id);
 
                 if (applicationEntity == null)
@@ -127,33 +171,19 @@ namespace DomiesAPI.Services
                     return null;
                 }
 
-                
-
-                if (applicationEntity.DateStart != applicationDto.DateStart)
-                {
-                    applicationEntity.DateStart = applicationDto.DateStart;
-                }
-
-                if (applicationEntity.DateEnd != applicationDto.DateEnd)
-                {
-                    applicationEntity.DateEnd = applicationDto.DateEnd;
-                }
+                applicationEntity.DateStart = applicationDto.DateStart;
+                applicationEntity.DateEnd = applicationDto.DateEnd;
 
 
-                var userEmail = applicationEntity.ToUser;
-                applicationEntity.ToUser = userEmail;
+
+                //var userEmail = applicationEntity.ToUser;
+                //applicationEntity.ToUser = userEmail;
 
 
 
                 await _context.SaveChangesAsync();
 
-                return new ApplicationDto
-                {
-                    DateStart = applicationEntity.DateStart,
-                    DateEnd = applicationEntity.DateEnd,
-                    ToUser = applicationEntity.ToUser,
-
-                };
+                return "Edytowano aplikację.";
             }
             catch (Exception ex)
             {
@@ -162,12 +192,13 @@ namespace DomiesAPI.Services
             }
         }
 
-        public async Task<bool> DeleteApplicationById(int id)
+        public async Task<bool> DeleteApplicationById(int id, String userEmail)
         {
             try
             {
                 var applicationToDelete = await _context.Applications
-                    //.Include(o => o.Address)
+                     //.Include(o => o.Address)
+                     .Where(a => a.ToUser == userEmail)
                      .FirstOrDefaultAsync(o => o.Id == id);
 
                 if (applicationToDelete == null)
