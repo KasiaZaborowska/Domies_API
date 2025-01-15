@@ -14,6 +14,11 @@ namespace DomiesAPI.Services
 {
     public interface IUserService
     {
+        static string getLoggedInUserEmail(HttpContext httpContext)
+        {
+            var userEmail = httpContext?.User.FindFirst("Email")?.Value;
+            return userEmail ?? string.Empty;
+        }
         Task<string> RegisterUser(UserDto userDto);
         Task<string> Login(LoginDto loginDto);
     }
@@ -28,6 +33,8 @@ namespace DomiesAPI.Services
             _passwordHasher = passwordHasher;
             _configuration = configuration;
         }
+
+        
 
         public async Task<string> RegisterUser(UserDto userDto)
         {
@@ -100,7 +107,16 @@ namespace DomiesAPI.Services
                     new Claim("FirstName",user.FirstName),
                     new Claim("LastName", user.LastName),
                     new Claim("Role", user.Role.Name),
+                    //new Claim(ClaimTypes.NameIdentifier, user.Email.ToString()),
+                    //new Claim("FirstName",user.FirstName),
+                    //new Claim("LastName", user.LastName),
+                    ////new Claim(ClaimTypes.Name ,$"{user.FirstName} {user.LastName}"),
+                    //new Claim(ClaimTypes.Role, $"{user.Role.Name}"),
                 };
+
+                //var identity = new ClaimsIdentity(claims, "login");
+                //var principal = new ClaimsPrincipal(identity);
+                
 
 
                 var jwtSettings = _configuration.GetSection("JwtSettings");
