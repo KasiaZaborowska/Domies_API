@@ -23,4 +23,5 @@ public partial class Application
 
     public virtual User ToUserNavigation { get; set; } = null!;
     public virtual ICollection<Animal> Animals { get; set; } = new List<Animal>();
+    //public virtual ICollection<ApplicationsAnimal> ApplicationsAnimals { get; set; } = new List<ApplicationsAnimals>();
 }
