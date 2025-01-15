@@ -1,17 +1,18 @@
 ﻿using DomiesAPI.Models;
 using DomiesAPI.Models.ModelsDto;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace DomiesAPI.Services
 {
     public interface IAnimalService
     {
-        Task<List<AnimalDto>> GetAnimals();
-        Task<AnimalDto> GetAnimalById(int id);
-        Task<string> CreateAnimal(AnimalDto animalDto);
-        Task<string> UpdateAnimal(int id, AnimalDto animalDto);
+        Task<List<AnimalDto>> GetAnimals(String userEmail);
+        Task<AnimalDto> GetAnimalById(int id, String userEmail);
+        Task<string> CreateAnimal(AnimalDto animalDto, String userEmail);
+        Task<string> UpdateAnimal(int id, AnimalDto animalDto, String userEmail);
 
-        Task<bool> DeleteAnimalById(int id);
+        Task<bool> DeleteAnimalById(int id, String userEmail);
     }
     public class AnimalService : IAnimalService
     {
@@ -21,7 +22,7 @@ namespace DomiesAPI.Services
             _context = context;
         }
 
-        public async Task<List<AnimalDto>> GetAnimals()
+        public async Task<List<AnimalDto>> GetAnimals(String userEmail)
         {
             try
             {
@@ -31,12 +32,16 @@ namespace DomiesAPI.Services
                 }
 
                 var animals = await _context.Animals
+                     .Include(a => a.AnimalTypeNavigation)
+                     .Where(a => a.Owner == userEmail)
                      .Select(a => new AnimalDto
                      {
+                         Id = a.Id,
                          PetName = a.PetName,
                          SpecificDescription = a.SpecificDescription,
-                         Owner = a.Owner,
+                         Owner = userEmail,
                          AnimalType = a.AnimalType,
+                         Type = a.AnimalTypeNavigation.Type,
                      })
                     .ToListAsync();
                 
@@ -49,18 +54,21 @@ namespace DomiesAPI.Services
             }
         }
 
-        public async Task<AnimalDto> GetAnimalById(int id)
+        public async Task<AnimalDto> GetAnimalById(int id, String userEmail)
         {
             try
             {
                 var animal = await _context.Animals
+                    .Where(a => a.Owner == userEmail)
                     .Where(a => a.Id == id)
                      .Select(a => new AnimalDto
                      {
+                         Id = a.Id,
                          PetName = a.PetName,
                          SpecificDescription = a.SpecificDescription,
                          Owner = a.Owner,
                          AnimalType = a.AnimalType,
+                         Type = a.AnimalTypeNavigation.Type,
                      })
                     .FirstOrDefaultAsync();
                 Console.WriteLine(animal);
@@ -73,16 +81,26 @@ namespace DomiesAPI.Services
             }
         }
 
-        public async Task<string> CreateAnimal(AnimalDto animalDto)
+        public async Task<string> CreateAnimal(AnimalDto animalDto, String userEmail)
         {
             try
             {
+                var typ = await _context.AnimalTypes.FirstOrDefaultAsync(t => t.Id == animalDto.AnimalType);
+                
+
+                if ((typ == null))
+                {
+                    return "Nie poprawny typ.";
+                }
                 var animalEntity = new Animal
                 {
-                    PetName = animalDto.PetName, 
-                    SpecificDescription = animalDto.SpecificDescription, 
-                    Owner = animalDto.Owner,
+                    PetName = animalDto.PetName,
+                    SpecificDescription = animalDto.SpecificDescription,
+                    Owner = userEmail,
                     AnimalType = animalDto.AnimalType,
+                    // = typ,
+
+                    AnimalTypeNavigation = typ
 
                 };
 
@@ -98,26 +116,27 @@ namespace DomiesAPI.Services
             }
         }
 
-        public async Task<string> UpdateAnimal(int id, AnimalDto animalDto)
+        public async Task<string> UpdateAnimal(int id, AnimalDto animalDto, String userEmail)
         {
             try
             {
                 var animalEntity = await _context.Animals
+                    .Where(a => a.Owner == userEmail)
                     .FirstOrDefaultAsync(t => t.Id == id);
 
-                if (animalEntity == null)
+                var typ = await _context.AnimalTypes.FirstOrDefaultAsync(t => t.Id == animalDto.AnimalType);
+
+
+                if ((typ == null))
                 {
-                    return null;
+                    return "Nie poprawny typ.";
                 }
 
-                if (!string.IsNullOrEmpty(animalDto.PetName) && animalEntity.PetName != animalDto.PetName)
-                {
-                    animalEntity.PetName = animalDto.PetName;
-                }
-                if (!string.IsNullOrEmpty(animalDto.SpecificDescription) && animalEntity.SpecificDescription != animalDto.SpecificDescription)
-                {
-                    animalEntity.SpecificDescription = animalDto.SpecificDescription;
-                }
+                animalEntity.PetName = animalDto.PetName;
+                animalEntity.SpecificDescription = animalDto.SpecificDescription;
+                animalEntity.AnimalType = animalDto.AnimalType;
+                animalEntity.AnimalTypeNavigation = typ;
+
 
                 await _context.SaveChangesAsync();
 
@@ -130,11 +149,12 @@ namespace DomiesAPI.Services
             }
         }
 
-        public async Task<bool> DeleteAnimalById(int id)
+        public async Task<bool> DeleteAnimalById(int id, String userEmail)
         {
             try
             {
                 var animalToDelete = await _context.Animals
+                    .Where(a => a.Owner == userEmail)
                      .FirstOrDefaultAsync(o => o.Id == id);
 
                 if (animalToDelete == null)
