@@ -12,6 +12,7 @@ namespace DomiesAPI.Controllers
 {
     [Route("api/application")]
     [ApiController]
+    [Authorize]
     public class ApplicationController : ControllerBase
     {
         //private readonly DomiesContext _context;
@@ -44,7 +45,8 @@ namespace DomiesAPI.Controllers
             //}
             //return BadRequest(new { message = "Wystąpił błąd w rejestracji." });
 
-            var applications = await _applicationService.GetApplications();
+            var userEmail = IUserService.getLoggedInUserEmail(HttpContext);
+            var applications = await _applicationService.GetApplications(userEmail);
             _response.Result = applications;
             _response.StatusCode = HttpStatusCode.OK;
             return Ok(_response);
@@ -54,14 +56,14 @@ namespace DomiesAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-
+            var userEmail = IUserService.getLoggedInUserEmail(HttpContext);
             if (id == 0)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
                 return BadRequest(_response);
             }
-            var application = await _applicationService.GetApplicationById(id);
+            var application = await _applicationService.GetApplicationById(id, userEmail);
 
 
             if (application == null)
@@ -80,9 +82,11 @@ namespace DomiesAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> AddApplication([FromBody] ApplicationDto applicationDto)
         {
+            var userEmail = IUserService.getLoggedInUserEmail(HttpContext);
+
             try
             {
-                var createdApplication = await _applicationService.CreateApplication(applicationDto);
+                var createdApplication = await _applicationService.CreateApplication(applicationDto, userEmail);
 
                 if (createdApplication == null)
                 {
@@ -102,12 +106,13 @@ namespace DomiesAPI.Controllers
 
         }
 
-        [HttpPatch("{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateApplication(int id, [FromBody] ApplicationDto applicationDto)
         {
+            var userEmail = IUserService.getLoggedInUserEmail(HttpContext);
             try
             {
-                var updatedApplication = await _applicationService.UpdateApplication(id, applicationDto);
+                var updatedApplication = await _applicationService.UpdateApplication(id, applicationDto, userEmail);
 
 
                 if (updatedApplication == null)
@@ -134,9 +139,10 @@ namespace DomiesAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteApplication(int id)
         {
+            var userEmail = IUserService.getLoggedInUserEmail(HttpContext);
             try
             {
-                var applicationToDelete = await _applicationService.DeleteApplicationById(id);
+                var applicationToDelete = await _applicationService.DeleteApplicationById(id, userEmail);
 
 
                 if (applicationToDelete == null)
