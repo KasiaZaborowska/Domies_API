@@ -1,6 +1,8 @@
-﻿namespace DomiesAPI.Models.ModelsDto
+﻿using System.Globalization;
+
+namespace DomiesAPI.Models.ModelsDto
 {
-    public class ApplicationDto
+    public class ApplicationDtoRead
     {
         public int Id { get; set; }
 
@@ -12,7 +14,8 @@
 
         public string ToUser { get; set; } = null!;
 
-        public List<int> AnimalsInt { get; set; }
+        //public string PetName { get; set; }
+        public List<AnimalDto>? Animals { get; set; }
 
         public DateTime? ApplicationDateAdd { get; set; }
 
