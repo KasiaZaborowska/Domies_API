@@ -1,14 +1,17 @@
 ﻿using DomiesAPI.Models;
 using DomiesAPI.Models.ModelsDto;
 using DomiesAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Security.Claims;
 
 namespace DomiesAPI.Controllers
 {
     [Route("api/animal")]
     [ApiController]
+    [Authorize]
     public class AnimalController : ControllerBase
     {
         private readonly DomiesContext _context;
@@ -24,21 +27,23 @@ namespace DomiesAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetALl()
         {
-            var animalTypes = await _animalService.GetAnimals();
-            _response.Result = animalTypes;
+            var userEmail = IUserService.getLoggedInUserEmail(HttpContext);
+            var animals = await _animalService.GetAnimals(userEmail);
+            _response.Result = animals;
             _response.StatusCode = HttpStatusCode.OK;
             return Ok(_response);
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
+            var userEmail = IUserService.getLoggedInUserEmail(HttpContext);
             if (id == 0)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
                 return BadRequest(_response);
             }
-            var animalType = await _animalService.GetAnimalById(id);
+            var animalType = await _animalService.GetAnimalById(id, userEmail);
 
 
             if (animalType == null)
@@ -53,11 +58,13 @@ namespace DomiesAPI.Controllers
         }
 
         [HttpPost]
+        [Consumes("application/json")]
         public async Task<ActionResult<ApiResponse>> CreateTypeOfAnimal([FromBody] AnimalDto animalDto)
         {
             try
             {
-                var createdAnimalType = await _animalService.CreateAnimal(animalDto);
+                var userEmail = IUserService.getLoggedInUserEmail(HttpContext);
+                var createdAnimalType = await _animalService.CreateAnimal(animalDto, userEmail);
 
                 if (createdAnimalType == null)
                 {
@@ -76,13 +83,14 @@ namespace DomiesAPI.Controllers
             }
         }
 
-        [HttpPatch("{id}")]
+        [HttpPut("{id}")]
         public async Task<ActionResult<ApiResponse>> UpdateTypeOfAnimal(int id, [FromBody] AnimalDto animalDto)
         {
             try
             {
-                var updatedAnimalType = await _animalService.UpdateAnimal(id, animalDto);
-
+                var userEmail = IUserService.getLoggedInUserEmail(HttpContext);
+                var updatedAnimalType = await _animalService.UpdateAnimal(id, animalDto, userEmail);
+               
 
                 if (updatedAnimalType == null)
                 {
@@ -107,8 +115,9 @@ namespace DomiesAPI.Controllers
         {
             try
             {
-                var animalTypeToDelete = await _animalService.DeleteAnimalById(id);
-
+                var userEmail = IUserService.getLoggedInUserEmail(HttpContext);
+                var animalTypeToDelete = await _animalService.DeleteAnimalById(id, userEmail);
+                
 
                 if (animalTypeToDelete == null)
                 {
