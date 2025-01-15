@@ -14,6 +14,7 @@ public partial class Animal
     public string Owner { get; set; } = null!;
 
     public int AnimalType { get; set; }
+   // public virtual AnimalType? AnimalTypeTable { get; set; } = null!;
 
     public virtual AnimalType AnimalTypeNavigation { get; set; } = null!;
 
