@@ -1,82 +1,134 @@
-﻿using Azure;
-using DomiesAPI.Models;
+﻿using DomiesAPI.Models;
 using DomiesAPI.Models.ModelsDto;
 using DomiesAPI.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using System.Net;
-using System.Security.Claims;
-using System.Text;
 
 namespace DomiesAPI.Controllers
 {
     [Route("api/user")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class UserController : ControllerBase
     {
 
-        //private readonly DomiesContext _context;
-        //private ApiResponse _response;
+        private ApiResponse _response;
         private IUserService _userService;
 
-        public UserController(IUserService userService)
+        public UserController(DomiesContext context, IUserService userService)
         {
             //_context = context;
-           //_response = apiResponse;
+            _response = new ApiResponse();
             _userService = userService;
         }
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] UserDto userdto)
+        [HttpGet]
+        public async Task<IActionResult> GetALl()
         {
-            if (ModelState.IsValid)
-            {
-                string result = await _userService.RegisterUser(userdto);
-                if (result == "Użytkownik z danym mailem już istnieje.")
-                {
-                    return BadRequest(new { message = result });
-                }
-                else
-                {
-                    return Ok(new { token = result, user = userdto.Email });
-                }
-            }
-            return BadRequest(new { message = "Wystąpił błąd w rejestracji." });
 
-            //await _userService.RegisterUser(userdto);
-            //    return Ok();
-                
-            
-
+            //if (ModelState.IsValid)
+            //{
+            //    string result = await _offerService.GetOffers();
+            //    if (result == "Niepoprawny email lub hasło")
+            //    {
+            //        return BadRequest(new { message = result });
+            //    }
+            //    else
+            //    {
+            //        return Ok(new { token = result, user = userdto.Email });
+            //    }
+            //}
             //return BadRequest(new { message = "Wystąpił błąd w rejestracji." });
+
+            var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
+            var users = await _userService.GetUsers(userEmail);
+            _response.Result = users;
+            _response.StatusCode = HttpStatusCode.OK;
+            return Ok(_response);
         }
-
-
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
+        [HttpGet("{email}")]
+        public async Task<IActionResult> GetById(string email)
         {
-            if (ModelState.IsValid)
+            var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
+            if (email == null)
             {
-                string result = await _userService.Login(loginDto);
-                if (result == "Niepoprawny email lub hasło")
-                {
-                    return BadRequest(new { message = result });
-                }
-                else
-                {
-                    return Ok(new { token = result, user = loginDto.Email });
-                }
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                return BadRequest(_response);
             }
-            return BadRequest(new { message = "Wystąpił błąd w rejestracji." });
+            var user = await _userService.GetUserById(email, userEmail);
+
+
+            if (user == null)
+            {
+                _response.StatusCode = HttpStatusCode.NotFound;
+                return NotFound(_response);
+            }
+
+            _response.Result = user;
+            _response.StatusCode = HttpStatusCode.OK;
+            return Ok(_response);
+
+
         }
 
-        
+        [HttpPost]
+        public async Task<IActionResult> AddUser([FromBody] UserDto userDto)
+        {
+            var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
+
+            try
+            {
+                var createdUser = await _userService.CreateUser(userDto, userEmail);
+
+                if (createdUser == null)
+                {
+                    return BadRequest(_response);
+                }
+
+                _response.Result = createdUser;
+                _response.StatusCode = HttpStatusCode.Created;
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+
+            }
+
+        }
+
+        [HttpPut("{email}")]
+        public async Task<IActionResult> UpdateApplication(string email, [FromBody] UserDto userDto)
+        {
+            var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
+            try
+            {
+                var updatedUser = await _userService.UpdateUser(email, userDto, userEmail);
+
+
+                if (updatedUser == null)
+                {
+                    //_response.StatusCode = HttpStatusCode.NotFound;
+                    //return NotFound(_response);
+                    return Ok(new { message = "No changes were made to the application." });
+                }
+
+                _response.Result = updatedUser;
+                _response.StatusCode = HttpStatusCode.OK;
+                //_response.Result = new { message = "Offer updated successfully." };
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+
+            }
+
+        }
+
     }
 }
