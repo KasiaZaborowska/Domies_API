@@ -27,7 +27,7 @@ namespace DomiesAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetALl()
         {
-            var userEmail = IUserService.getLoggedInUserEmail(HttpContext);
+            var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
             var animals = await _animalService.GetAnimals(userEmail);
             _response.Result = animals;
             _response.StatusCode = HttpStatusCode.OK;
@@ -36,7 +36,7 @@ namespace DomiesAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var userEmail = IUserService.getLoggedInUserEmail(HttpContext);
+            var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
             if (id == 0)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
@@ -63,7 +63,7 @@ namespace DomiesAPI.Controllers
         {
             try
             {
-                var userEmail = IUserService.getLoggedInUserEmail(HttpContext);
+                var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
                 var createdAnimalType = await _animalService.CreateAnimal(animalDto, userEmail);
 
                 if (createdAnimalType == null)
@@ -88,7 +88,7 @@ namespace DomiesAPI.Controllers
         {
             try
             {
-                var userEmail = IUserService.getLoggedInUserEmail(HttpContext);
+                var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
                 var updatedAnimalType = await _animalService.UpdateAnimal(id, animalDto, userEmail);
                
 
@@ -115,7 +115,7 @@ namespace DomiesAPI.Controllers
         {
             try
             {
-                var userEmail = IUserService.getLoggedInUserEmail(HttpContext);
+                var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
                 var animalTypeToDelete = await _animalService.DeleteAnimalById(id, userEmail);
                 
 
