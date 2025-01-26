@@ -1,145 +1,168 @@
-﻿using DomiesAPI.Models;
-using DomiesAPI.Models.ModelsDto;
-using Microsoft.AspNetCore.Identity;
+﻿using DomiesAPI.Models.ModelsDto;
+using DomiesAPI.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Net;
-using System.Security.Claims;
-using System.Text;
+
 
 namespace DomiesAPI.Services
 {
     public interface IUserService
     {
-        static string getLoggedInUserEmail(HttpContext httpContext)
-        {
-            var userEmail = httpContext?.User.FindFirst("Email")?.Value;
-            return userEmail ?? string.Empty;
-        }
-        Task<string> RegisterUser(UserDto userDto);
-        Task<string> Login(LoginDto loginDto);
+        Task<List<UserDto>> GetUsers(String userEmail);
+        Task<UserDto> GetUserById(string email, String userEmail);
+        Task<string> CreateUser(UserDto userDto, String userEmail);
+        Task<string> UpdateUser(string email, UserDto userDto, String userEmail);
+        // Task<ApplicationDto> UpdateApplication(int id, ApplicationDto applicationDto);
+        //Task<bool> DeleteUserById(int id, String userEmail);
     }
-    public class UserService : IUserService
-    {
-        private readonly DomiesContext _context;
-        private readonly IPasswordHasher<User> _passwordHasher;
-        private readonly IConfiguration _configuration;
-        public UserService(DomiesContext context, IPasswordHasher<User> passwordHasher, IConfiguration configuration)
+
+        public class UserService : IUserService
         {
-            _context = context;
-            _passwordHasher = passwordHasher;
-            _configuration = configuration;
-        }
-
-        
-
-        public async Task<string> RegisterUser(UserDto userDto)
-        {
-            //try
-            //{
-           User userFromDb = _context.Users
-           .FirstOrDefault(u => u.Email.ToLower() == userDto.Email.ToLower());
-
-            if (userFromDb != null)
-            {           
-                return "Użytkownik z danym mailem już istnieje.";
-                
+            private readonly DomiesContext _context;
+            public UserService(DomiesContext context)
+            {
+                _context = context;
             }
 
-            var roleExists = _context.Roles.Any(r => r.RoleId == userDto.RoleId);
-                if (!roleExists)
+            public async Task<List<UserDto>> GetUsers(String userEmail)
+            {
+                try
                 {
-                    throw new Exception($"Rola z Id {userDto.RoleId} nie istnieje.");
+                    if (_context.Applications == null)
+                    {
+                        throw new ApplicationException("Users table is not initialized.");
+                    }
+
+                    var userDto = await _context.Users
+                        .Include(u => u.Role)
+                         .Select(u => new UserDto
+                         {
+                             Email = u.Email,
+                             FirstName = u.FirstName,
+                             LastName = u.LastName,
+                             RoleId = u.RoleId,
+                             RoleName = u.Role.Name,
+                             DateAdd = u.DateAdd,
+                         })
+                        .ToListAsync();
+                    Console.WriteLine(userDto);
+                    return userDto;
                 }
-
-                var newUser = new User()
+                catch (Exception ex)
                 {
-                    Email = userDto.Email,
-                    FirstName = userDto.FirstName,
-                    LastName = userDto.LastName,
-                    RoleId = 1
-                };
-                var hashedPassword = _passwordHasher.HashPassword(newUser, userDto.Password);
+                    Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                    throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+                }
+            }
 
-                newUser.Password = hashedPassword;
-                _context.Users.Add(newUser);
-                await _context.SaveChangesAsync();
+            public async Task<UserDto> GetUserById(string email, String userEmail)
+            {
+                try
+                {
+                    var userDto = await _context.Users                     
+                        .Include(u => u.Role)
+                        .Where(a => a.Email == email)
+                         .Select(u => new UserDto
+                         {
+                             Email = u.Email,
+                             FirstName = u.FirstName,
+                             LastName = u.LastName,
+                             RoleId = u.RoleId,
+                             RoleName = u.Role.Name,
+                             DateAdd = u.DateAdd,
+                         })
+                        .FirstOrDefaultAsync();
+                    Console.WriteLine(userDto);
+                    return userDto;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                    throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+                }
+            }
 
-                return $"Nowy użytkownik utworzony {newUser.Email}";
+            public async Task<string> CreateUser(UserDto userDto, String userEmail)
+            {
+                using var transaction = await _context.Database.BeginTransactionAsync();
 
-            //} catch (Exception ex) 
+                try
+                {
+                    var userEntity = new User
+                    {
+                        Email = userDto.Email, 
+                        FirstName = userDto.FirstName, 
+                        LastName = userDto.LastName,
+                        RoleId = userDto.RoleId,
+                        DateAdd = userDto.DateAdd,
+                    };
+
+
+                    _context.Users.Add(userEntity);
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+
+                    return "Stworzono aplikację.";
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                    throw new ApplicationException("Błąd podczas tworzenia aplikacji", ex);
+                }
+            }
+
+            public async Task<string> UpdateUser(string email, UserDto userDto, String userEmail)
+            {
+                try
+                {
+                    var userEntity = await _context.Users
+                        .FirstOrDefaultAsync(u => u.Email == email);
+
+                    if (userEntity == null)
+                    {
+                        return null;
+                    }
+
+                    userEntity.Email = userDto.Email;
+                    userEntity.FirstName = userDto.FirstName;
+                    userEntity.LastName = userDto.LastName;
+                    userEntity.RoleId = userDto.RoleId;
+
+                    await _context.SaveChangesAsync();
+
+                    return "Edytowano.";
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                    throw new ApplicationException("Błąd podczas edytowania oferty", ex);
+                }
+            }
+
+            //public async Task<bool> DeleteUserById(int id, String userEmail)
             //{
-            //    // Logowanie błędu
-            //    Console.WriteLine(ex.Message);
-            //    return ex.Message;
+            //    try
+            //    {
+            //        var applicationToDelete = await _context.Applications
+            //             //.Include(o => o.Address)
+            //             .Where(a => a.ToUser == userEmail)
+            //             .FirstOrDefaultAsync(o => o.Id == id);
+
+            //        if (applicationToDelete == null)
+            //        {
+            //            return false;
+            //        }
+            //        _context.Applications.Remove(applicationToDelete);
+            //        await _context.SaveChangesAsync();
+
+            //        return true;
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+            //        throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+            //    }
             //}
 
-            
-            
         }
-
-        public async Task<string> Login(LoginDto loginDto)
-        {
-            try
-            {
-                var user = _context.Users
-                .Include(u => u.Role)
-                .FirstOrDefault(u => u.Email == loginDto.Email);
-
-                Console.WriteLine(user.Role.Name);
-
-                if (user == null)
-                {
-                    return "Niepoprawny email lub hasło";
-                }
-
-                var result = _passwordHasher.VerifyHashedPassword(user, user.Password, loginDto.Password);
-                if (result == PasswordVerificationResult.Failed)
-                {
-                    return "Niepoprawny email lub hasło";
-                }
-                var claims = new List<Claim>()
-                {
-                    new Claim("Email", user.Email.ToString()),
-                    new Claim("FirstName",user.FirstName),
-                    new Claim("LastName", user.LastName),
-                    new Claim("Role", user.Role.Name),
-                    //new Claim(ClaimTypes.NameIdentifier, user.Email.ToString()),
-                    //new Claim("FirstName",user.FirstName),
-                    //new Claim("LastName", user.LastName),
-                    ////new Claim(ClaimTypes.Name ,$"{user.FirstName} {user.LastName}"),
-                    //new Claim(ClaimTypes.Role, $"{user.Role.Name}"),
-                };
-
-                //var identity = new ClaimsIdentity(claims, "login");
-                //var principal = new ClaimsPrincipal(identity);
-                
-
-
-                var jwtSettings = _configuration.GetSection("JwtSettings");
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["JwtSecretKey"]));
-
-                var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-                var expires = DateTime.Now.AddDays(Convert.ToInt32(jwtSettings["JwtExpireDays"]));
-                var token = new JwtSecurityToken(jwtSettings["JwtIssuer"],
-                     jwtSettings["JwtIssuer"],
-                    claims,
-                    expires: expires,
-                    signingCredentials: cred
-                    );
-
-                var tokenHandler = new JwtSecurityTokenHandler();
-                return tokenHandler.WriteToken(token);
-            }
-            catch (Exception ex)
-            {
-                // Logowanie błędu
-                Console.WriteLine(ex.Message);
-                return ex.Message;
-            }
-        }
-    }
+    
 }
