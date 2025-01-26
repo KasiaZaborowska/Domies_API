@@ -122,6 +122,10 @@ public partial class DomiesContext : DbContext
             entity.Property(e => e.DateStart)
                 .HasColumnType("datetime")
                 .HasColumnName("date_start");
+            entity.Property(e => e.Note)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .HasColumnName("note");
             entity.Property(e => e.OfferId).HasColumnName("offer_id");
             entity.Property(e => e.ToUser)
                 .HasMaxLength(50)
@@ -199,11 +203,12 @@ public partial class DomiesContext : DbContext
 
         modelBuilder.Entity<OfferAnimalType>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK_OfferAnimalType_id");
+            //entity.HasKey(e => e.Id).HasName("PK_OfferAnimalType_id");
+            entity.HasKey(e => new { e.OfferId, e.AnimalTypeId });
 
             entity.ToTable("OfferAnimalType");
 
-            entity.Property(e => e.Id).HasColumnName("id");
+            //entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AnimalTypeId).HasColumnName("animal_type_id");
             entity.Property(e => e.OfferId).HasColumnName("offer_id");
 
