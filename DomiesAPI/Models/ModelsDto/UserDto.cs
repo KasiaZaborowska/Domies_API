@@ -11,6 +11,7 @@
         public string Password { get; set; } = null!;
 
         public int RoleId { get; set; } = 1;
+        public string? RoleName { get; set; }
 
         public DateTime? DateAdd { get; set; }
     }
