@@ -16,6 +16,7 @@ public partial class Application
     public string ToUser { get; set; } = null!;
 
     public DateTime? ApplicationDateAdd { get; set; }
+    public string Note { get; set; }
 
     public virtual Offer Offer { get; set; } = null!;
 
