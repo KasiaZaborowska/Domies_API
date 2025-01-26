@@ -3,9 +3,7 @@ using DomiesAPI.Models;
 using DomiesAPI.Models.ModelsDto;
 using DomiesAPI.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Net;
 
 namespace DomiesAPI.Controllers
@@ -45,7 +43,7 @@ namespace DomiesAPI.Controllers
             //}
             //return BadRequest(new { message = "Wystąpił błąd w rejestracji." });
 
-            var userEmail = IUserService.getLoggedInUserEmail(HttpContext);
+            var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
             var applications = await _applicationService.GetApplications(userEmail);
             _response.Result = applications;
             _response.StatusCode = HttpStatusCode.OK;
@@ -56,7 +54,7 @@ namespace DomiesAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var userEmail = IUserService.getLoggedInUserEmail(HttpContext);
+            var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
             if (id == 0)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
@@ -80,9 +78,10 @@ namespace DomiesAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddApplication([FromBody] ApplicationDto applicationDto)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> AddApplication([FromForm] ApplicationDto applicationDto)
         {
-            var userEmail = IUserService.getLoggedInUserEmail(HttpContext);
+            var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
 
             try
             {
@@ -109,7 +108,7 @@ namespace DomiesAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateApplication(int id, [FromBody] ApplicationDto applicationDto)
         {
-            var userEmail = IUserService.getLoggedInUserEmail(HttpContext);
+            var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
             try
             {
                 var updatedApplication = await _applicationService.UpdateApplication(id, applicationDto, userEmail);
@@ -139,7 +138,7 @@ namespace DomiesAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteApplication(int id)
         {
-            var userEmail = IUserService.getLoggedInUserEmail(HttpContext);
+            var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
             try
             {
                 var applicationToDelete = await _applicationService.DeleteApplicationById(id, userEmail);
