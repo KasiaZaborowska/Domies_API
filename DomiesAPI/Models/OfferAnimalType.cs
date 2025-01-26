@@ -5,7 +5,7 @@ namespace DomiesAPI.Models;
 
 public partial class OfferAnimalType
 {
-    public int Id { get; set; }
+   // public int Id { get; set; }
     public int? OfferId { get; set; }  
 
     public int? AnimalTypeId { get; set; } 
