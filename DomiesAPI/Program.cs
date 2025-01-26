@@ -36,10 +36,14 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = jwtSettings["JwtIssuer"], // Issuer z konfiguracji
         ValidAudience = jwtSettings["JwtIssuer"], // Audience z konfiguracji
         RequireExpirationTime = true,
-        ValidateLifetime = true // Walidacja, czy token nie wygas³
+        ValidateLifetime = true, // Walidacja, czy token nie wygas³
+        RoleClaimType = "Role"
     };
 });
-
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+});
 
 
 
@@ -55,14 +59,14 @@ builder.Services.AddSwaggerGen();
 // database seed 
 builder.Services.AddScoped<DomiesSeeder>();
 
-
-builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserAccountService, UserAccountService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IOfferService, OfferService>(); 
 builder.Services.AddScoped<IAnimalTypeService, AnimalTypeService>(); 
 builder.Services.AddScoped<IApplicationService, ApplicationService>();
 builder.Services.AddScoped<IOpinionService, OpinionService>();
 builder.Services.AddScoped<IAnimalService, AnimalService>();
+builder.Services.AddScoped<IUserService,UserService>();
 
 builder.Services.AddCors(options =>
 {
