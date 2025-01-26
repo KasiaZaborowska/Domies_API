@@ -10,7 +10,7 @@ namespace DomiesAPI.Services
     public interface IApplicationService
     {
         Task<List<ApplicationDtoRead>> GetApplications(String userEmail);
-        Task<ApplicationDto> GetApplicationById(int id, String userEmail);
+        Task<ApplicationDtoRead> GetApplicationById(int id, String userEmail);
         Task<string> CreateApplication(ApplicationDto applicationDto, String userEmail);
         Task<string> UpdateApplication(int id, ApplicationDto applicationDto, String userEmail);
        // Task<ApplicationDto> UpdateApplication(int id, ApplicationDto applicationDto);
@@ -46,6 +46,7 @@ namespace DomiesAPI.Services
                          OfferId = a.OfferId,
                          ToUser = userEmail,
                          ApplicationDateAdd = a.ApplicationDateAdd,
+                         Note = a.Note,
                          //City = o.Address.City,
 
                          //Animals = string.Join(", ",
@@ -82,7 +83,7 @@ namespace DomiesAPI.Services
             }
         }
 
-        public async Task<ApplicationDto> GetApplicationById(int id, String userEmail)
+        public async Task<ApplicationDtoRead> GetApplicationById(int id, String userEmail)
         {
             try
             {
@@ -90,7 +91,7 @@ namespace DomiesAPI.Services
                     .Where(a => a.ToUser == userEmail)
                     .Where(a => a.Id == id)
                     //.Include(o => o.Address)
-                     .Select(a => new ApplicationDto
+                     .Select(a => new ApplicationDtoRead
                      {
                          Id = a.Id,
                          DateStart = a.DateStart,
@@ -98,6 +99,7 @@ namespace DomiesAPI.Services
                          OfferId = a.OfferId,
                          ToUser = userEmail,
                          ApplicationDateAdd = a.ApplicationDateAdd,
+                         Note = a.Note,
                      })
                     .FirstOrDefaultAsync();
                 Console.WriteLine(applicationDto);
@@ -121,17 +123,18 @@ namespace DomiesAPI.Services
                     DateStart = applicationDto.DateStart,
                     DateEnd = applicationDto.DateEnd,
                     OfferId = applicationDto.OfferId,
-                    ToUser = applicationDto.ToUser,
+                    ToUser = userEmail,
                     ApplicationDateAdd = applicationDto.ApplicationDateAdd,
+                    Note = applicationDto.Note,
                 };
 
                 
 
-                if (applicationDto.AnimalsInt != null && applicationDto.AnimalsInt.Any())
+                if (applicationDto.Animals != null && applicationDto.Animals.Any())
                 {
                     var animalToApplication = await _context.Animals
                         //.Where(at => at.Type.Equals("dog") || at.Type.Equals("cat"))
-                        .Where(at => applicationDto.AnimalsInt.Contains(at.Id))
+                        .Where(at => applicationDto.Animals.Contains(at.Id.ToString()))
                         //.Select(at => at.Id)
                         .ToListAsync();
 
@@ -173,6 +176,7 @@ namespace DomiesAPI.Services
 
                 applicationEntity.DateStart = applicationDto.DateStart;
                 applicationEntity.DateEnd = applicationDto.DateEnd;
+                applicationEntity.Note  = applicationDto.Note;
 
 
 
