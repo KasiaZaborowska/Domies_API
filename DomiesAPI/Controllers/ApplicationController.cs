@@ -78,8 +78,8 @@ namespace DomiesAPI.Controllers
         }
 
         [HttpPost]
-        [Consumes("multipart/form-data")]
-        public async Task<IActionResult> AddApplication([FromForm] ApplicationDto applicationDto)
+        [Consumes("application/json")]
+        public async Task<IActionResult> AddApplication([FromBody] ApplicationDto applicationDto)
         {
             var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
 
