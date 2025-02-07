@@ -17,6 +17,7 @@ namespace DomiesAPI.Models.ModelsDto
 
         //public string PetName { get; set; }
         public List<AnimalDto>? Animals { get; set; }
+        public List<OpinionDto>? Opinions { get; set; }
 
         public DateTime? ApplicationDateAdd { get; set; }
 
