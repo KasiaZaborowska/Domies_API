@@ -2,6 +2,7 @@
 using DomiesAPI.Models;
 using DomiesAPI.Models.ModelsDto;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System.Linq;
 
 namespace DomiesAPI.Services
@@ -36,6 +37,7 @@ namespace DomiesAPI.Services
                     .Include(o => o.Address)
                     .Include(o => o.Photo)
                     .Include(o => o.Applications)
+                   
                      .Select(o => new OfferDtoRead
                      {
                          Id = o.Id,
@@ -59,6 +61,10 @@ namespace DomiesAPI.Services
                             o.OfferAnimalTypes
                             .Select(oat => oat.AnimalType.Type)),
 
+                         
+                         
+                     
+                         
                          //Applications = o.Applications
                          // DO DODANIA WYSWITANIE APLIAKCJI !!!!!!!!!!!!!!!
 
@@ -92,6 +98,10 @@ namespace DomiesAPI.Services
                     .Where(o => o.Id == id)
                     .Include(o => o.Address)
                     .Include(o => o.Photo)
+                    .Include(o => o.Applications)
+                    .ThenInclude(o => o.Animals)
+                    .Include(o => o.Applications)
+                    .ThenInclude(o => o.Opinions)
                      .Select(o => new OfferDtoRead
                      {
                          Id = o.Id,
@@ -115,6 +125,46 @@ namespace DomiesAPI.Services
                             o.OfferAnimalTypes
                             .Select(oat => oat.AnimalType.Type)),
 
+                         Applications = o.Applications.Select(a => new ApplicationDtoRead
+                         {
+                             Id = a.Id,
+                             DateStart = a.DateStart,
+                             DateEnd = a.DateEnd,
+                             OfferId = a.OfferId,
+                             ToUser = a.ToUser,
+                             Note = a.Note,
+                             Animals = a.Animals.Select(animals => new AnimalDto
+                             {
+                                 Id = animals.Id,
+                                 PetName = animals.PetName,
+                                 SpecificDescription = animals.SpecificDescription,
+                                 AnimalType = animals.AnimalType,
+                                 Type = animals.AnimalTypeNavigation.Type,
+                             }).ToList(),
+                             Opinions = a.Opinions.Select(opinion => new OpinionDto
+                             {
+                                 Id = opinion.Id,
+                                 Rating = opinion.Rating,
+                                 Comment = opinion.Comment,
+                                 ApplicationId = opinion.ApplicationId,
+                                 UserEmail = opinion.UserEmail
+                             }).ToList()
+                         }).ToList(),
+
+                         //OpinionsList = o.Applications.Select(a => new ApplicationDtoRead
+                         //{
+                         //    Id = a.Id,
+                         //    OfferId = a.OfferId,
+                         //    ToUser = a.ToUser,
+                         //    Opinions = a.Opinions.Select(opinion => new OpinionDto
+                         //    {
+                         //        Id = opinion.Id,
+                         //        Rating = opinion.Rating,
+                         //        Comment = opinion.Comment,
+                         //        ApplicationId = opinion.ApplicationId,
+                         //        UserEmail = opinion.UserEmail
+                         //    }).ToList()
+                         //}).ToList(),
                      })
                     .FirstOrDefaultAsync();
                 Console.WriteLine(offerDto);
