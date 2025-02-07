@@ -12,6 +12,8 @@ public partial class User
     public string LastName { get; set; } = null!;
 
     public string Password { get; set; } = null!;
+    public bool? IsEmailVerified { get; set; }
+    public string? EmailVerificationToken { get; set; }
 
     public int RoleId { get; set; } = 1;
 

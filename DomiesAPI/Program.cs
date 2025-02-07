@@ -65,8 +65,9 @@ builder.Services.AddScoped<IOfferService, OfferService>();
 builder.Services.AddScoped<IAnimalTypeService, AnimalTypeService>(); 
 builder.Services.AddScoped<IApplicationService, ApplicationService>();
 builder.Services.AddScoped<IOpinionService, OpinionService>();
-builder.Services.AddScoped<IAnimalService, AnimalService>();
+builder.Services.AddScoped<IAnimalService, AnimalService>(); 
 builder.Services.AddScoped<IUserService,UserService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddCors(options =>
 {

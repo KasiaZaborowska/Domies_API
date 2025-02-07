@@ -15,7 +15,7 @@ public partial class Opinion
 
     public string UserEmail { get; set; } = null!;
 
-    public DateTime? ApplicationDateAdd { get; set; }
+    public DateTime? OpinionDateAdd { get; set; }
 
     public virtual Application Application { get; set; } = null!;
 
