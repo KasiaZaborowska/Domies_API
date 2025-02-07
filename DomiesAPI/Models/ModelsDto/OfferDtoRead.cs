@@ -22,10 +22,11 @@
 
         public string? PostalCode { get; set; } = null!;
         public decimal? Price { get; set; }
+        //public List<OpinionDto>? OpinionsList { get; set; }
 
         //public List<AnimalTypeDto>? OfferAnimalTypes { get; set; }
         public string OfferAnimalTypes { get; set; } = null!;
-        public List<ApplicationDto> Applications { get; set; } = null!;
+        public List<ApplicationDtoRead> Applications { get; set; } = null!;
 
         public IFormFile? File { get; set; }
         public string? Photo { get; set; }
