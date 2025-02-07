@@ -13,7 +13,7 @@
         //public string ToUser { get; set; } = null!;
         public string? Note { get; set; }
 
-        public List<string>? Animals { get; set; }
+        public List<int>? Animals { get; set; }
 
         //public List<string> Animals { get; set; } = new List<string>();
 
