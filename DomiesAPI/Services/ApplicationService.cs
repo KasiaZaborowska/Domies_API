@@ -134,7 +134,7 @@ namespace DomiesAPI.Services
                 {
                     var animalToApplication = await _context.Animals
                         //.Where(at => at.Type.Equals("dog") || at.Type.Equals("cat"))
-                        .Where(at => applicationDto.Animals.Contains(at.Id.ToString()))
+                        .Where(at => applicationDto.Animals.Contains(at.Id))
                         //.Select(at => at.Id)
                         .ToListAsync();
 
