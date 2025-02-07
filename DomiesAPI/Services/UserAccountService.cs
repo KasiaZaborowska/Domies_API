@@ -1,6 +1,7 @@
 ﻿using DomiesAPI.Models;
 using DomiesAPI.Models.ModelsDto;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -19,7 +20,7 @@ namespace DomiesAPI.Services
             var userEmail = httpContext?.User.FindFirst("Email")?.Value;
             return userEmail ?? string.Empty;
         }
-        Task<string> RegisterUser(UserDto userDto);
+        Task<string> RegisterUser(UserDto userDto, string verificationToken);
         Task<string> Login(LoginDto loginDto);
     }
     public class UserAccountService : IUserAccountService
@@ -36,7 +37,7 @@ namespace DomiesAPI.Services
 
         
 
-        public async Task<string> RegisterUser(UserDto userDto)
+        public async Task<string> RegisterUser(UserDto userDto, string verificationToken)
         {
             //try
             //{
@@ -60,7 +61,9 @@ namespace DomiesAPI.Services
                     Email = userDto.Email,
                     FirstName = userDto.FirstName,
                     LastName = userDto.LastName,
-                    RoleId = 1
+                    RoleId = 1,
+                    IsEmailVerified = false,
+                    EmailVerificationToken = verificationToken,
                 };
                 var hashedPassword = _passwordHasher.HashPassword(newUser, userDto.Password);
 
@@ -80,6 +83,19 @@ namespace DomiesAPI.Services
             
             
         }
+
+        //public async Task<IActionResult> VerifyUserEmail(string token)
+        //{
+        //    var user = await _context.Users.FirstOrDefaultAsync(u => u.EmailVerificationToken == request.Token);
+        //    if (user == null)
+        //        return BadRequest("Niepoprawny token");
+
+        //    user.IsVerified = true;
+        //    user.VerificationToken = null; // Token nie jest już potrzebny
+        //    await _context.SaveChangesAsync();
+
+        //    return Ok("Twoje konto zostało zweryfikowane!");
+        //}
 
         public async Task<string> Login(LoginDto loginDto)
         {
