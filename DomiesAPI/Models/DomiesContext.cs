@@ -226,10 +226,10 @@ public partial class DomiesContext : DbContext
             entity.HasKey(e => e.Id).HasName("PK__Opinions__3213E83F1A4255FB");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.ApplicationDateAdd)
+            entity.Property(e => e.OpinionDateAdd)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
-                .HasColumnName("application_date_add");
+                .HasColumnName("opinion_date_add");
             entity.Property(e => e.ApplicationId).HasColumnName("application_id");
             entity.Property(e => e.Comment)
                 .HasColumnType("text")
@@ -305,7 +305,15 @@ public partial class DomiesContext : DbContext
                 .HasMaxLength(30)
                 .IsUnicode(false)
                 .HasColumnName("password");
+            entity.Property(e => e.IsEmailVerified)
+                .IsUnicode(false)
+                .HasColumnName("email_verified");
+            entity.Property(e => e.EmailVerificationToken)
+                .IsUnicode(false)
+                .HasColumnName("email_verification_token");
+
             entity.Property(e => e.RoleId).HasColumnName("role_id");
+
 
             entity.HasOne(d => d.Role).WithMany(p => p.Users)
                 .HasForeignKey(d => d.RoleId)
