@@ -12,6 +12,6 @@
 
         public string? UserEmail { get; set; } 
 
-        public DateTime? ApplicationDateAdd { get; set; }
+        public DateTime? OpinionDateAdd { get; set; }
     }
 }
