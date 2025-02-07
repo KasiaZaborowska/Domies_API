@@ -38,7 +38,7 @@ namespace DomiesAPI.Services
                          Comment = o.Comment,
                          ApplicationId = o.ApplicationId,
                          UserEmail = o.UserEmail,
-                         ApplicationDateAdd = o.ApplicationDateAdd,
+                         OpinionDateAdd = DateTime.Now,
                      })
                     .ToListAsync();
                 Console.WriteLine(opinionsDto);
@@ -64,7 +64,7 @@ namespace DomiesAPI.Services
                          Comment = o.Comment,
                          ApplicationId = o.ApplicationId,
                          UserEmail = o.UserEmail,
-                         ApplicationDateAdd = o.ApplicationDateAdd,
+                         OpinionDateAdd = o.OpinionDateAdd,
                      })
                     .FirstOrDefaultAsync();
                 Console.WriteLine(opinionDto);
@@ -87,7 +87,7 @@ namespace DomiesAPI.Services
                     Comment = opinionDto.Comment,
                     ApplicationId = opinionDto.ApplicationId,
                     UserEmail = opinionDto.UserEmail,
-                    ApplicationDateAdd = opinionDto.ApplicationDateAdd,
+                    OpinionDateAdd = opinionDto.OpinionDateAdd,
 
                 };
 
@@ -100,7 +100,7 @@ namespace DomiesAPI.Services
                     Comment = opinionEntity.Comment,
                     ApplicationId = opinionEntity.ApplicationId,
                     UserEmail = opinionEntity.UserEmail,
-                    ApplicationDateAdd = opinionEntity.ApplicationDateAdd,
+                    OpinionDateAdd = opinionEntity.OpinionDateAdd,
 
                 };
             }
