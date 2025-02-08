@@ -93,7 +93,7 @@ namespace DomiesAPI.Services
                         FirstName = userDto.FirstName, 
                         LastName = userDto.LastName,
                         RoleId = userDto.RoleId,
-                        DateAdd = userDto.DateAdd,
+                        DateAdd = DateTime.Now,
                     };
 
 
