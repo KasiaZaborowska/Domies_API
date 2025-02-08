@@ -41,6 +41,7 @@ namespace DomiesAPI.Services
         public async Task<string> RegisterUser(UserDto userDto, string verificationToken)
         {
             //try
+            //
             //{
            User userFromDb = _context.Users
            .FirstOrDefault(u => u.Email.ToLower() == userDto.Email.ToLower());
