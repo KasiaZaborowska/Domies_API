@@ -61,10 +61,34 @@ namespace DomiesAPI.Services
                             o.OfferAnimalTypes
                             .Select(oat => oat.AnimalType.Type)),
 
-                         
-                         
-                     
-                         
+
+
+                         Applications = o.Applications.Select(a => new ApplicationDtoRead
+                         {
+                             Id = a.Id,
+                             DateStart = a.DateStart,
+                             DateEnd = a.DateEnd,
+                             OfferId = a.OfferId,
+                             ToUser = a.ToUser,
+                             Note = a.Note,
+                             Animals = a.Animals.Select(animals => new AnimalDto
+                             {
+                                 Id = animals.Id,
+                                 PetName = animals.PetName,
+                                 SpecificDescription = animals.SpecificDescription,
+                                 AnimalType = animals.AnimalType,
+                                 Type = animals.AnimalTypeNavigation.Type,
+                             }).ToList(),
+                             Opinions = a.Opinions.Select(opinion => new OpinionDto
+                             {
+                                 Id = opinion.Id,
+                                 Rating = opinion.Rating,
+                                 Comment = opinion.Comment,
+                                 ApplicationId = opinion.ApplicationId,
+                                 UserEmail = opinion.UserEmail
+                             }).ToList()
+                         }).ToList(),
+
                          //Applications = o.Applications
                          // DO DODANIA WYSWITANIE APLIAKCJI !!!!!!!!!!!!!!!
 
