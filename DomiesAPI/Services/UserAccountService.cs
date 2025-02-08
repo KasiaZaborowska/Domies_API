@@ -22,6 +22,7 @@ namespace DomiesAPI.Services
         }
         Task<string> RegisterUser(UserDto userDto, string verificationToken);
         Task<string> Login(LoginDto loginDto);
+        Task<string> VerifyUserEmail(string token);
     }
     public class UserAccountService : IUserAccountService
     {
@@ -45,15 +46,15 @@ namespace DomiesAPI.Services
            .FirstOrDefault(u => u.Email.ToLower() == userDto.Email.ToLower());
 
             if (userFromDb != null)
-            {           
-                return "Użytkownik z danym mailem już istnieje.";
+            {
+                throw new ArgumentException("Użytkownik z danym mailem już istnieje.");
                 
             }
 
             var roleExists = _context.Roles.Any(r => r.RoleId == userDto.RoleId);
                 if (!roleExists)
                 {
-                    throw new Exception($"Rola z Id {userDto.RoleId} nie istnieje.");
+                    throw new ArgumentException($"Rola z Id {userDto.RoleId} nie istnieje.");
                 }
 
                 var newUser = new User()
@@ -84,78 +85,72 @@ namespace DomiesAPI.Services
             
         }
 
-        //public async Task<IActionResult> VerifyUserEmail(string token)
-        //{
-        //    var user = await _context.Users.FirstOrDefaultAsync(u => u.EmailVerificationToken == request.Token);
-        //    if (user == null)
-        //        return BadRequest("Niepoprawny token");
+        public async Task<string> VerifyUserEmail(string Token)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.EmailVerificationToken == Token);
+            if (user == null)
+                return "Niepoprawny token";
 
-        //    user.IsVerified = true;
-        //    user.VerificationToken = null; // Token nie jest już potrzebny
-        //    await _context.SaveChangesAsync();
+            user.IsEmailVerified = true;
+            await _context.SaveChangesAsync();
 
-        //    return Ok("Twoje konto zostało zweryfikowane!");
-        //}
+            return "Twoje konto zostało zweryfikowane!";
+        }
 
         public async Task<string> Login(LoginDto loginDto)
         {
-            try
+            var user = _context.Users
+            .Include(u => u.Role)
+            .FirstOrDefault(u => u.Email == loginDto.Email);
+
+            if (user == null)
             {
-                var user = _context.Users
-                .Include(u => u.Role)
-                .FirstOrDefault(u => u.Email == loginDto.Email);
+                throw new ArgumentException("Użytkownik nie istnieje.");
+            }
 
-                Console.WriteLine(user.Role.Name);
+            if (user.IsEmailVerified == false)
+            {
+                throw new ArgumentException("Zweryfikuj swoje konto.");
+            }
 
-                if (user == null)
-                {
-                    return "Niepoprawny email lub hasło";
-                }
+            var result = _passwordHasher.VerifyHashedPassword(user, user.Password, loginDto.Password);
+            if (result == PasswordVerificationResult.Failed)
+            {
+                throw new ArgumentException("Niepoprawny email lub hasło.");
+            }
+            var claims = new List<Claim>()
+            {
+                new Claim("Email", user.Email.ToString()),
+                new Claim("FirstName",user.FirstName),
+                new Claim("LastName", user.LastName),
+                new Claim("Role", user.Role.Name),
+                //new Claim(ClaimTypes.NameIdentifier, user.Email.ToString()),
+                //new Claim("FirstName",user.FirstName),
+                //new Claim("LastName", user.LastName),
+                ////new Claim(ClaimTypes.Name ,$"{user.FirstName} {user.LastName}"),
+                //new Claim(ClaimTypes.Role, $"{user.Role.Name}"),
+            };
 
-                var result = _passwordHasher.VerifyHashedPassword(user, user.Password, loginDto.Password);
-                if (result == PasswordVerificationResult.Failed)
-                {
-                    return "Niepoprawny email lub hasło";
-                }
-                var claims = new List<Claim>()
-                {
-                    new Claim("Email", user.Email.ToString()),
-                    new Claim("FirstName",user.FirstName),
-                    new Claim("LastName", user.LastName),
-                    new Claim("Role", user.Role.Name),
-                    //new Claim(ClaimTypes.NameIdentifier, user.Email.ToString()),
-                    //new Claim("FirstName",user.FirstName),
-                    //new Claim("LastName", user.LastName),
-                    ////new Claim(ClaimTypes.Name ,$"{user.FirstName} {user.LastName}"),
-                    //new Claim(ClaimTypes.Role, $"{user.Role.Name}"),
-                };
-
-                //var identity = new ClaimsIdentity(claims, "login");
-                //var principal = new ClaimsPrincipal(identity);
+            //var identity = new ClaimsIdentity(claims, "login");
+            //var principal = new ClaimsPrincipal(identity);
                 
 
 
-                var jwtSettings = _configuration.GetSection("JwtSettings");
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["JwtSecretKey"]));
+            var jwtSettings = _configuration.GetSection("JwtSettings");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["JwtSecretKey"]));
 
-                var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-                var expires = DateTime.Now.AddDays(Convert.ToInt32(jwtSettings["JwtExpireDays"]));
-                var token = new JwtSecurityToken(jwtSettings["JwtIssuer"],
-                     jwtSettings["JwtIssuer"],
-                    claims,
-                    expires: expires,
-                    signingCredentials: cred
-                    );
+            var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var expires = DateTime.Now.AddDays(Convert.ToInt32(jwtSettings["JwtExpireDays"]));
+            var token = new JwtSecurityToken(jwtSettings["JwtIssuer"],
+                    jwtSettings["JwtIssuer"],
+                claims,
+                expires: expires,
+                signingCredentials: cred
+                );
 
-                var tokenHandler = new JwtSecurityTokenHandler();
-                return tokenHandler.WriteToken(token);
-            }
-            catch (Exception ex)
-            {
-                // Logowanie błędu
-                Console.WriteLine(ex.Message);
-                return ex.Message;
-            }
+            var tokenHandler = new JwtSecurityTokenHandler();
+            return tokenHandler.WriteToken(token); 
+           
         }
     }
 }
