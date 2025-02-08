@@ -124,7 +124,7 @@ namespace DomiesAPI.Services
                     DateEnd = applicationDto.DateEnd,
                     OfferId = applicationDto.OfferId,
                     ToUser = userEmail,
-                    ApplicationDateAdd = applicationDto.ApplicationDateAdd,
+                    ApplicationDateAdd = DateTime.Now,
                     Note = applicationDto.Note,
                 };
 
