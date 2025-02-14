@@ -1,11 +1,13 @@
-﻿namespace DomiesAPI.Models.ModelsDto
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DomiesAPI.Models.ModelsDto
 {
     public class OpinionDto
     {
         public int Id { get; set; }
-
+        [Required(ErrorMessage = "Ocena jest wymagana.")]
         public int? Rating { get; set; }
-
+        [Required(ErrorMessage = "Komentarz jest wymagany.")]
         public string? Comment { get; set; }
 
         public int ApplicationId { get; set; }
