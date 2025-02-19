@@ -15,6 +15,7 @@ namespace DomiesAPI.Models.ModelsDto
         public string? Owner { get; set; } = null!;
 
         [Required(ErrorMessage = "Typ zwierzaka jest wymagany.")]
+        [MinLength(1, ErrorMessage = "Wymagane jest zaznaczenie 1 spośród dostępnych opcji.")]
         public int AnimalType { get; set; }
         public string? Type { get; set; }
 
