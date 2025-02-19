@@ -40,9 +40,9 @@ namespace DomiesAPI.Services
 
         public async Task<string> RegisterUser(UserDto userDto, string verificationToken)
         {
-            //try
-            //
-            //{
+            try
+            
+            {
            User userFromDb = _context.Users
            .FirstOrDefault(u => u.Email.ToLower() == userDto.Email.ToLower());
 
@@ -75,15 +75,17 @@ namespace DomiesAPI.Services
 
                 return $"Nowy użytkownik utworzony {newUser.Email}";
 
-            //} catch (Exception ex) 
-            //{
-            //    // Logowanie błędu
-            //    Console.WriteLine(ex.Message);
-            //    return ex.Message;
-            //}
+            }
+            catch (Exception ex)
+            {
+                // Logowanie błędu
+                Console.WriteLine(ex.Message);
+                throw new ApplicationException("Błąd podczas rejestracji", ex);
+                
+            }
 
-            
-            
+
+
         }
 
         public async Task<string> VerifyUserEmail(string Token)
