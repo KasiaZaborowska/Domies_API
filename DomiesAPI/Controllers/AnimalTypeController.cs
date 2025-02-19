@@ -1,6 +1,7 @@
 ﻿using DomiesAPI.Models;
 using DomiesAPI.Models.ModelsDto;
 using DomiesAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -9,6 +10,7 @@ namespace DomiesAPI.Controllers
 {
     [Route("api/animaltype")]
     [ApiController]
+    
     public class AnimalTypeController : ControllerBase
     {
         private readonly DomiesContext _context;
@@ -53,6 +55,8 @@ namespace DomiesAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ApiResponse>> CreateTypeOfAnimal([FromBody] AnimalTypeDto animalTypeDto)
         {
             try
@@ -77,6 +81,8 @@ namespace DomiesAPI.Controllers
         }
 
         [HttpPatch("{id}")]
+        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ApiResponse>> UpdateTypeOfAnimal(int id, [FromBody] AnimalTypeDto typeOfAnimalDto)
         {
             try
@@ -103,6 +109,8 @@ namespace DomiesAPI.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ApiResponse>> DeleteTypeOfAnimal(int id)
         {
             try
