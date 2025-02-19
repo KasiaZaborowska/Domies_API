@@ -163,11 +163,11 @@ namespace DomiesAPI.Controllers
                     return Ok(new { token = result, user = userdto.Email });
                 }
             }
-            catch (ArgumentException ex)
-            {
-                Console.WriteLine(ex.Message);
-                return BadRequest(new { message = ex.Message });
-            }
+            //catch (ArgumentException ex)
+            //{
+            //    Console.WriteLine(ex.Message);
+            //    return BadRequest(new { message = ex.Message });
+            //}
             catch (Exception ex)
             {
                 return BadRequest(new { message = "Wystąpił błąd w rejestracji." });
