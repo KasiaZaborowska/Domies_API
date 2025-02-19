@@ -17,6 +17,7 @@ namespace DomiesAPI.Models.ModelsDto
         //public string ToUser { get; set; } = null!;
         public string? Note { get; set; }
 
+        [MinLength(1, ErrorMessage = "Wymagane jest zaznaczenie co najmniej 1 opcji spośród dostępnych zwierząt.")]
         [Required(ErrorMessage = "Wybór zwierząt jest wymagany.")]
         public List<int>? Animals { get; set; }
 
