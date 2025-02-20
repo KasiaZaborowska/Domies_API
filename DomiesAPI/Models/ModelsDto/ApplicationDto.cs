@@ -14,7 +14,9 @@ namespace DomiesAPI.Models.ModelsDto
 
         public int OfferId { get; set; }
 
-        //public string ToUser { get; set; } = null!;
+        public string Applicant { get; set; } = null!;
+
+        public string ApplicationStatus { get; set; } = null!;
         public string? Note { get; set; }
 
         [MinLength(1, ErrorMessage = "Wymagane jest zaznaczenie co najmniej 1 opcji spośród dostępnych zwierząt.")]
