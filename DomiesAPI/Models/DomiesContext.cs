@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using static System.Net.Mime.MediaTypeNames;
+
 
 namespace DomiesAPI.Models;
 
@@ -22,15 +22,22 @@ public partial class DomiesContext : DbContext
 
     public virtual DbSet<AnimalType> AnimalTypes { get; set; }
 
+    public virtual DbSet<Facility> Facilities { get; set; }
+
     public virtual DbSet<Offer> Offers { get; set; }
+
+    public virtual DbSet<OfferFacility> OfferFacilities { get; set; }
 
     public virtual DbSet<OfferAnimalType> OfferAnimalTypes { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+
     public virtual DbSet<Application> Applications { get; set; }
+
     public virtual DbSet<Opinion> Opinions { get; set; }
+
     public virtual DbSet<Photo> Photos { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -122,23 +129,27 @@ public partial class DomiesContext : DbContext
             entity.Property(e => e.DateStart)
                 .HasColumnType("datetime")
                 .HasColumnName("date_start");
+            entity.Property(e => e.ApplicationStatus)
+               .HasMaxLength(20)
+               .IsUnicode(false)
+               .HasColumnName("application_status");
             entity.Property(e => e.Note)
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("note");
             entity.Property(e => e.OfferId).HasColumnName("offer_id");
-            entity.Property(e => e.ToUser)
+            entity.Property(e => e.Applicant)
                 .HasMaxLength(50)
                 .IsUnicode(false)
-                .HasColumnName("to_user");
+                .HasColumnName("applicant");
 
             entity.HasOne(d => d.Offer).WithMany(p => p.Applications)
                 .HasForeignKey(d => d.OfferId)
                 .HasConstraintName("FK__Applicati__offer__2A164134");
 
-            entity.HasOne(d => d.ToUserNavigation).WithMany(p => p.Applications)
-                .HasForeignKey(d => d.ToUser)
-                .HasConstraintName("FK__Applicati__to_us__2B0A656D");
+            entity.HasOne(d => d.ApplicantNavigation).WithMany(p => p.Applications)
+                .HasForeignKey(d => d.Applicant)
+                .HasConstraintName("FK__Applicati__applicant__2B0A656D");
 
             entity.HasMany(d => d.Animals).WithMany(p => p.Applications)
                 .UsingEntity<Dictionary<string, object>>(
@@ -158,6 +169,21 @@ public partial class DomiesContext : DbContext
                     });
         });
 
+        modelBuilder.Entity<Facility>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Faciliti__3213E83FA72E8885");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.FacilitiesDescription)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .HasColumnName("facilities_description");
+            entity.Property(e => e.FacilitiesType)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("facilities_type");
+        });
+
         modelBuilder.Entity<Offer>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Offers__3213E83FA0EF4E10");
@@ -168,9 +194,9 @@ public partial class DomiesContext : DbContext
                 .HasDefaultValueSql("CONVERT(date, GETDATE())")
                 .HasColumnType("date")
                 .HasColumnName("date_add");
-            entity.Property(e => e.Description)
-                .HasColumnType("text")
-                .HasColumnName("description");
+            //entity.Property(e => e.Description)
+            //    .HasColumnType("text")
+            //    .HasColumnName("description");
             entity.Property(e => e.Host)
                 .HasMaxLength(50)
                 .IsUnicode(false)
@@ -183,6 +209,12 @@ public partial class DomiesContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("name");
+            entity.Property(e => e.OfferDescription)
+                .IsUnicode(false)
+                .HasColumnName("offer_description");
+            entity.Property(e => e.PetSitterDescription)
+                .IsUnicode(false)
+                .HasColumnName("petSitterDescription");
 
             entity.HasOne(d => d.Address).WithMany(p => p.Offers)
                 .HasForeignKey(d => d.AddressId)
@@ -199,6 +231,22 @@ public partial class DomiesContext : DbContext
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("FK_Offers_Photo");
 
+        });
+
+        modelBuilder.Entity<OfferFacility>(entity =>
+        {
+            entity.HasNoKey();
+
+            entity.Property(e => e.FacilitieId).HasColumnName("facilitie_id");
+            entity.Property(e => e.OfferId).HasColumnName("offer_id");
+
+            entity.HasOne(d => d.Facilitie).WithMany()
+                .HasForeignKey(d => d.FacilitieId)
+                .HasConstraintName("FK__OfferFaci__facil__793DFFAF");
+
+            entity.HasOne(d => d.Offer).WithMany()
+                .HasForeignKey(d => d.OfferId)
+                .HasConstraintName("FK__OfferFaci__offer__7849DB76");
         });
 
         modelBuilder.Entity<OfferAnimalType>(entity =>
@@ -305,6 +353,11 @@ public partial class DomiesContext : DbContext
                 .HasMaxLength(30)
                 .IsUnicode(false)
                 .HasColumnName("password");
+            entity.Property(e => e.PhoneNumber)
+                .HasMaxLength(9)
+                .IsUnicode(false)
+                .IsFixedLength()
+                .HasColumnName("phone_number");
             entity.Property(e => e.IsEmailVerified)
                 .IsUnicode(false)
                 .HasColumnName("email_verified");
