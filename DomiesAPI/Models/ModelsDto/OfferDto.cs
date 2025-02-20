@@ -10,7 +10,8 @@ namespace DomiesAPI.Models.ModelsDto
         public string? Name { get; set; } = null!;
 
         [Required(ErrorMessage = "Opis oferty jest wymagany.")]
-        public string? Description { get; set; } = null!;
+        public string? OfferDescription { get; set; } = null!;
+        public string? PetSitterDescription { get; set; } = null!;
 
         public string? Host { get; set; } = null!;
 
@@ -39,7 +40,7 @@ namespace DomiesAPI.Models.ModelsDto
         [MinLength(1, ErrorMessage = "Wymagane jest zaznaczenie co najmniej 1 opcji.")]
         public List<string>? OfferAnimalTypes { get; set; } = null!;
 
-        
+
 
         public IFormFile? File { get; set; }
 
