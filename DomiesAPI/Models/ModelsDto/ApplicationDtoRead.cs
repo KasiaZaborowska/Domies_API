@@ -12,7 +12,9 @@ namespace DomiesAPI.Models.ModelsDto
 
         public int OfferId { get; set; }
 
-        public string ToUser { get; set; } = null!;
+        public string Applicant { get; set; } = null!;
+
+        public string ApplicationStatus { get; set; } = null!;
         public string? Note { get; set; }
 
         //public string PetName { get; set; }
