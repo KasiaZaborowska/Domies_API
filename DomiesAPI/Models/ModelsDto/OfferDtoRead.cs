@@ -6,8 +6,7 @@
 
         public string? Name { get; set; } = null!;
 
-        public string? OfferDescription { get; set; } = null!;
-        public string? PetSitterDescription { get; set; } = null!;
+        public string? Description { get; set; } = null!;
 
         public string? Host { get; set; } = null!;
 

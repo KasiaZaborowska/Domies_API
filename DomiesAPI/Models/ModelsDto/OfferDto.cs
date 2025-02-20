@@ -10,8 +10,7 @@ namespace DomiesAPI.Models.ModelsDto
         public string? Name { get; set; } = null!;
 
         [Required(ErrorMessage = "Opis oferty jest wymagany.")]
-        public string? OfferDescription { get; set; } = null!;
-        public string? PetSitterDescription { get; set; } = null!;
+        public string? Description { get; set; } = null!;
 
         public string? Host { get; set; } = null!;
 
