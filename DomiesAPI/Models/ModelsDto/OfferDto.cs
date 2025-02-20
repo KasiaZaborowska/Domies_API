@@ -39,7 +39,7 @@ namespace DomiesAPI.Models.ModelsDto
         [MinLength(1, ErrorMessage = "Wymagane jest zaznaczenie co najmniej 1 opcji.")]
         public List<string>? OfferAnimalTypes { get; set; } = null!;
 
-        
+
 
         public IFormFile? File { get; set; }
 

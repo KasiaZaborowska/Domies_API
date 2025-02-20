@@ -13,7 +13,7 @@
         public int? AddressId { get; set; }
 
         public DateTime? DateAdd { get; set; }
-        
+
         public string? Country { get; set; } = null!;
 
         public string? City { get; set; } = null!;

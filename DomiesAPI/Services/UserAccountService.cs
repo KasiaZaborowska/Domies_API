@@ -36,23 +36,23 @@ namespace DomiesAPI.Services
             _configuration = configuration;
         }
 
-        
+
 
         public async Task<string> RegisterUser(UserDto userDto, string verificationToken)
         {
             try
-            
-            {
-           User userFromDb = _context.Users
-           .FirstOrDefault(u => u.Email.ToLower() == userDto.Email.ToLower());
 
-            if (userFromDb != null)
             {
-                throw new ArgumentException("Użytkownik z danym mailem już istnieje.");
-                
-            }
+                User userFromDb = _context.Users
+                .FirstOrDefault(u => u.Email.ToLower() == userDto.Email.ToLower());
 
-            var roleExists = _context.Roles.Any(r => r.RoleId == userDto.RoleId);
+                if (userFromDb != null)
+                {
+                    throw new ArgumentException("Użytkownik z danym mailem już istnieje.");
+
+                }
+
+                var roleExists = _context.Roles.Any(r => r.RoleId == userDto.RoleId);
                 if (!roleExists)
                 {
                     throw new ArgumentException($"Rola z Id {userDto.RoleId} nie istnieje.");
@@ -81,7 +81,7 @@ namespace DomiesAPI.Services
                 // Logowanie błędu
                 Console.WriteLine(ex.Message);
                 throw new ApplicationException("Błąd podczas rejestracji", ex);
-                
+
             }
 
 
@@ -136,7 +136,7 @@ namespace DomiesAPI.Services
 
             //var identity = new ClaimsIdentity(claims, "login");
             //var principal = new ClaimsPrincipal(identity);
-                
+
 
 
             var jwtSettings = _configuration.GetSection("JwtSettings");
@@ -152,8 +152,8 @@ namespace DomiesAPI.Services
                 );
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            return tokenHandler.WriteToken(token); 
-           
+            return tokenHandler.WriteToken(token);
+
         }
     }
 }
