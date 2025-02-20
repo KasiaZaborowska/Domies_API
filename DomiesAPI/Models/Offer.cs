@@ -10,7 +10,7 @@ public partial class Offer
 
     public string Name { get; set; } = null!;
 
-    public string OfferDescription { get; set; } = null!;
+    public string Description { get; set; } = null!;
 
     public string Host { get; set; } = null!;
 
@@ -20,7 +20,6 @@ public partial class Offer
     public decimal? Price { get; set; }
 
     public int? PhotoId { get; set; }
-    public string? PetSitterDescription { get; set; }
 
     public virtual Address Address { get; set; } = null!;
     public virtual Photo? Photo { get; set; } = null!;

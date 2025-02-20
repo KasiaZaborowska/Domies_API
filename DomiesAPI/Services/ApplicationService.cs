@@ -13,7 +13,7 @@ namespace DomiesAPI.Services
         Task<ApplicationDtoRead> GetApplicationById(int id, String userEmail);
         Task<string> CreateApplication(ApplicationDto applicationDto, String userEmail);
         Task<string> UpdateApplication(int id, ApplicationDto applicationDto, String userEmail);
-        // Task<ApplicationDto> UpdateApplication(int id, ApplicationDto applicationDto);
+       // Task<ApplicationDto> UpdateApplication(int id, ApplicationDto applicationDto);
         Task<bool> DeleteApplicationById(int id, String userEmail);
     }
     public class ApplicationService : IApplicationService
@@ -35,8 +35,8 @@ namespace DomiesAPI.Services
 
                 var applicationsDto = await _context.Applications
                     //.Include(o => o.Address)
-
-                    .Where(a => a.Applicant == userEmail)
+                    
+                    .Where(a => a.ToUser == userEmail)
                     .Include(o => o.Animals)
                      .Select(a => new ApplicationDtoRead
                      {
@@ -44,8 +44,7 @@ namespace DomiesAPI.Services
                          DateStart = a.DateStart,
                          DateEnd = a.DateEnd,
                          OfferId = a.OfferId,
-                         Applicant = userEmail,
-                         ApplicationStatus = a.ApplicationStatus,
+                         ToUser = userEmail,
                          ApplicationDateAdd = a.ApplicationDateAdd,
                          Note = a.Note,
                          //City = o.Address.City,
@@ -89,17 +88,16 @@ namespace DomiesAPI.Services
             try
             {
                 var applicationDto = await _context.Applications
-                    .Where(a => a.Applicant == userEmail)
+                    .Where(a => a.ToUser == userEmail)
                     .Where(a => a.Id == id)
-                     //.Include(o => o.Address)
+                    //.Include(o => o.Address)
                      .Select(a => new ApplicationDtoRead
                      {
                          Id = a.Id,
                          DateStart = a.DateStart,
                          DateEnd = a.DateEnd,
                          OfferId = a.OfferId,
-                         Applicant = userEmail,
-                         ApplicationStatus = a.ApplicationStatus,
+                         ToUser = userEmail,
                          ApplicationDateAdd = a.ApplicationDateAdd,
                          Note = a.Note,
                      })
@@ -125,13 +123,12 @@ namespace DomiesAPI.Services
                     DateStart = applicationDto.DateStart,
                     DateEnd = applicationDto.DateEnd,
                     OfferId = applicationDto.OfferId,
-                    Applicant = userEmail,
-                    ApplicationStatus = "Oczekująca",
+                    ToUser = userEmail,
                     ApplicationDateAdd = DateTime.Now,
                     Note = applicationDto.Note,
                 };
 
-
+                
 
                 if (applicationDto.Animals != null && applicationDto.Animals.Any())
                 {
@@ -148,7 +145,7 @@ namespace DomiesAPI.Services
                         applicationEntity.Animals.Add(animal);
                         animal.Applications.Add(applicationEntity);
                     }
-
+ 
                 }
 
                 _context.Applications.Add(applicationEntity);
@@ -169,7 +166,7 @@ namespace DomiesAPI.Services
             try
             {
                 var applicationEntity = await _context.Applications
-                    .Where(a => a.Applicant == userEmail)
+                    .Where(a => a.ToUser == userEmail)
                     .FirstOrDefaultAsync(o => o.Id == id);
 
                 if (applicationEntity == null)
@@ -179,12 +176,12 @@ namespace DomiesAPI.Services
 
                 applicationEntity.DateStart = applicationDto.DateStart;
                 applicationEntity.DateEnd = applicationDto.DateEnd;
-                applicationEntity.Note = applicationDto.Note;
+                applicationEntity.Note  = applicationDto.Note;
 
 
 
-                //var userEmail = applicationEntity.Applicant;
-                //applicationEntity.Applicant = userEmail;
+                //var userEmail = applicationEntity.ToUser;
+                //applicationEntity.ToUser = userEmail;
 
 
 
@@ -205,14 +202,14 @@ namespace DomiesAPI.Services
             {
                 var applicationToDelete = await _context.Applications
                      //.Include(o => o.Address)
-                     .Where(a => a.Applicant == userEmail)
+                     .Where(a => a.ToUser == userEmail)
                      .FirstOrDefaultAsync(o => o.Id == id);
 
                 if (applicationToDelete == null)
                 {
                     return false;
                 }
-                _context.Applications.Remove(applicationToDelete);
+                _context.Applications .Remove(applicationToDelete);
                 await _context.SaveChangesAsync();
 
                 return true;
