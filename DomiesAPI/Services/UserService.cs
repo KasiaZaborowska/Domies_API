@@ -39,7 +39,6 @@ namespace DomiesAPI.Services
                              Email = u.Email,
                              FirstName = u.FirstName,
                              LastName = u.LastName,
-                             PhoneNumber = u.PhoneNumber,
                              RoleId = u.RoleId,
                              RoleName = u.Role.Name,
                              DateAdd = u.DateAdd,
@@ -67,7 +66,6 @@ namespace DomiesAPI.Services
                              Email = u.Email,
                              FirstName = u.FirstName,
                              LastName = u.LastName,
-                             PhoneNumber = u.PhoneNumber,
                              RoleId = u.RoleId,
                              RoleName = u.Role.Name,
                              DateAdd = u.DateAdd,
@@ -94,7 +92,6 @@ namespace DomiesAPI.Services
                         Email = userDto.Email, 
                         FirstName = userDto.FirstName, 
                         LastName = userDto.LastName,
-                        PhoneNumber = userDto.PhoneNumber,
                         RoleId = userDto.RoleId,
                         DateAdd = DateTime.Now,
                     };
@@ -128,7 +125,6 @@ namespace DomiesAPI.Services
                     userEntity.Email = userDto.Email;
                     userEntity.FirstName = userDto.FirstName;
                     userEntity.LastName = userDto.LastName;
-                    userEntity.PhoneNumber = userDto.PhoneNumber;
                     userEntity.RoleId = userDto.RoleId;
 
                     await _context.SaveChangesAsync();
@@ -148,7 +144,7 @@ namespace DomiesAPI.Services
             //    {
             //        var applicationToDelete = await _context.Applications
             //             //.Include(o => o.Address)
-            //             .Where(a => a.Applicant == userEmail)
+            //             .Where(a => a.ToUser == userEmail)
             //             .FirstOrDefaultAsync(o => o.Id == id);
 
             //        if (applicationToDelete == null)

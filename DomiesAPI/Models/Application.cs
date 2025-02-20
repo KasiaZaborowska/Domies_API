@@ -13,8 +13,7 @@ public partial class Application
 
     public int OfferId { get; set; }
 
-    public string Applicant { get; set; } = null!;
-    public string ApplicationStatus { get; set; } = null!;
+    public string ToUser { get; set; } = null!;
 
     public DateTime? ApplicationDateAdd { get; set; }
     public string Note { get; set; }
@@ -23,7 +22,7 @@ public partial class Application
 
     public virtual ICollection<Opinion> Opinions { get; set; } = new List<Opinion>();
 
-    public virtual User ApplicantNavigation { get; set; } = null!;
+    public virtual User ToUserNavigation { get; set; } = null!;
     public virtual ICollection<Animal> Animals { get; set; } = new List<Animal>();
     //public virtual ICollection<ApplicationsAnimal> ApplicationsAnimals { get; set; } = new List<ApplicationsAnimals>();
 }

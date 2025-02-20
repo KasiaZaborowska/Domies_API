@@ -37,14 +37,12 @@ namespace DomiesAPI.Services
                     .Include(o => o.Address)
                     .Include(o => o.Photo)
                     .Include(o => o.Applications)
-                    //.Include(o => o.OfferFacilities)
                    
                      .Select(o => new OfferDtoRead
                      {
                          Id = o.Id,
                          Name = o.Name,
-                         OfferDescription = o.OfferDescription,
-                         PetSitterDescription = o.PetSitterDescription,
+                         Description = o.Description,
                          Host = o.Host,
                          //AddressId = o.AddressId,
                          DateAdd = o.DateAdd,
@@ -71,7 +69,7 @@ namespace DomiesAPI.Services
                              DateStart = a.DateStart,
                              DateEnd = a.DateEnd,
                              OfferId = a.OfferId,
-                             Applicant = a.Applicant,
+                             ToUser = a.ToUser,
                              Note = a.Note,
                              Animals = a.Animals.Select(animals => new AnimalDto
                              {
@@ -132,8 +130,7 @@ namespace DomiesAPI.Services
                      {
                          Id = o.Id,
                          Name = o.Name,
-                         OfferDescription = o.OfferDescription,
-                         PetSitterDescription = o.PetSitterDescription,
+                         Description = o.Description,
                          Host = o.Host,
                          //AddressId = o.AddressId,
                          DateAdd = o.DateAdd,
@@ -158,7 +155,7 @@ namespace DomiesAPI.Services
                              DateStart = a.DateStart,
                              DateEnd = a.DateEnd,
                              OfferId = a.OfferId,
-                             Applicant = a.Applicant,
+                             ToUser = a.ToUser,
                              Note = a.Note,
                              Animals = a.Animals.Select(animals => new AnimalDto
                              {
@@ -182,7 +179,7 @@ namespace DomiesAPI.Services
                          //{
                          //    Id = a.Id,
                          //    OfferId = a.OfferId,
-                         //    Applicant = a.Applicant,
+                         //    ToUser = a.ToUser,
                          //    Opinions = a.Opinions.Select(opinion => new OpinionDto
                          //    {
                          //        Id = opinion.Id,
@@ -236,8 +233,7 @@ namespace DomiesAPI.Services
                 var newOffer = new Offer
                 {
                     Name = offerDto.Name,
-                    OfferDescription = offerDto.OfferDescription,
-                    PetSitterDescription = offerDto.PetSitterDescription,
+                    Description = offerDto.Description,
                     Host = offerDto.Host,
                     Price = offerDto.Price,
                     DateAdd = offerDto.DateAdd,
@@ -337,19 +333,20 @@ namespace DomiesAPI.Services
 
                 }
 
+               
 
-                if (!string.IsNullOrEmpty(offerDto.OfferDescription) && offerEntity.OfferDescription != offerDto.OfferDescription)
+                if (!string.IsNullOrEmpty(offerDto.Description) && offerEntity.Description != offerDto.Description)
                 {
-                    offerEntity.OfferDescription = offerDto.OfferDescription;
-                }
-                if (!string.IsNullOrEmpty(offerDto.PetSitterDescription) && offerEntity.PetSitterDescription != offerDto.PetSitterDescription)
-                {
-                    offerEntity.PetSitterDescription = offerDto.PetSitterDescription;
+                    offerEntity.Description = offerDto.Description;
                 }
                 if (offerEntity.Price != offerDto.Price)
                 {
                     offerEntity.Price = offerDto.Price;
                 }
+
+                //offerEntity.Title = offerDto.Title;
+                //offerEntity.Photo = offerDto.Photo;
+                //offerEntity.Description = offerDto.Description;
 
 
                 if (offerEntity.Address != null)

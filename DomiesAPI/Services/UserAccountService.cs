@@ -63,7 +63,6 @@ namespace DomiesAPI.Services
                     Email = userDto.Email,
                     FirstName = userDto.FirstName,
                     LastName = userDto.LastName,
-                    PhoneNumber = userDto.PhoneNumber,
                     RoleId = 1,
                     IsEmailVerified = false,
                     EmailVerificationToken = verificationToken,
