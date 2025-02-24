@@ -27,7 +27,7 @@ namespace DomiesAPI.Services
             {
                 if (_context.AnimalTypes == null)
                 {
-                    throw new ApplicationException("AnimalTypes table is not initialized.");
+                    throw new ApplicationException("Tablica AnimalTypes nie istnieje.");
                 }
 
                 var animalTypes = await _context.AnimalTypes
