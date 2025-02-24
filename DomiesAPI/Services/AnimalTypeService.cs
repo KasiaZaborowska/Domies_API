@@ -91,7 +91,7 @@ namespace DomiesAPI.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-                throw new ApplicationException("Błąd podczas tworzenia oferty", ex);
+                throw new ApplicationException("Błąd podczas tworzenia typu zwierzęcia", ex);
             }
         }
 
@@ -125,7 +125,7 @@ namespace DomiesAPI.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-                throw new ApplicationException("Błąd podczas edytowania oferty", ex);
+                throw new ApplicationException("Błąd podczas edytowania typu zwierzęcia", ex);
             }
         }
 
@@ -148,7 +148,7 @@ namespace DomiesAPI.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+                throw new ApplicationException("Błąd podczas usuwania typu zwierzęcia", ex);
             }
         }
 
