@@ -37,12 +37,14 @@ namespace DomiesAPI.Services
                     .Include(o => o.Address)
                     .Include(o => o.Photo)
                     .Include(o => o.Applications)
-                   
+                     //.Include(o => o.OfferFacilities)
+
                      .Select(o => new OfferDtoRead
                      {
                          Id = o.Id,
                          Name = o.Name,
-                         Description = o.Description,
+                         OfferDescription = o.OfferDescription,
+                         PetSitterDescription = o.PetSitterDescription,
                          Host = o.Host,
                          //AddressId = o.AddressId,
                          DateAdd = o.DateAdd,
@@ -69,7 +71,7 @@ namespace DomiesAPI.Services
                              DateStart = a.DateStart,
                              DateEnd = a.DateEnd,
                              OfferId = a.OfferId,
-                             ToUser = a.ToUser,
+                             Applicant = a.Applicant,
                              Note = a.Note,
                              Animals = a.Animals.Select(animals => new AnimalDto
                              {
@@ -130,7 +132,8 @@ namespace DomiesAPI.Services
                      {
                          Id = o.Id,
                          Name = o.Name,
-                         Description = o.Description,
+                         OfferDescription = o.OfferDescription,
+                         PetSitterDescription = o.PetSitterDescription,
                          Host = o.Host,
                          //AddressId = o.AddressId,
                          DateAdd = o.DateAdd,
@@ -155,7 +158,7 @@ namespace DomiesAPI.Services
                              DateStart = a.DateStart,
                              DateEnd = a.DateEnd,
                              OfferId = a.OfferId,
-                             ToUser = a.ToUser,
+                             Applicant = a.Applicant,
                              Note = a.Note,
                              Animals = a.Animals.Select(animals => new AnimalDto
                              {
@@ -179,7 +182,7 @@ namespace DomiesAPI.Services
                          //{
                          //    Id = a.Id,
                          //    OfferId = a.OfferId,
-                         //    ToUser = a.ToUser,
+                         //    Applicant = a.Applicant,
                          //    Opinions = a.Opinions.Select(opinion => new OpinionDto
                          //    {
                          //        Id = opinion.Id,
@@ -233,7 +236,8 @@ namespace DomiesAPI.Services
                 var newOffer = new Offer
                 {
                     Name = offerDto.Name,
-                    Description = offerDto.Description,
+                    OfferDescription = offerDto.OfferDescription,
+                    PetSitterDescription = offerDto.PetSitterDescription,
                     Host = offerDto.Host,
                     Price = offerDto.Price,
                     DateAdd = offerDto.DateAdd,
@@ -335,9 +339,13 @@ namespace DomiesAPI.Services
 
                
 
-                if (!string.IsNullOrEmpty(offerDto.Description) && offerEntity.Description != offerDto.Description)
+                if (!string.IsNullOrEmpty(offerDto.OfferDescription) && offerEntity.OfferDescription != offerDto.OfferDescription)
                 {
-                    offerEntity.Description = offerDto.Description;
+                    offerEntity.OfferDescription = offerDto.OfferDescription;
+                }
+                if (!string.IsNullOrEmpty(offerDto.PetSitterDescription) && offerEntity.PetSitterDescription != offerDto.PetSitterDescription)
+                {
+                    offerEntity.PetSitterDescription = offerDto.PetSitterDescription;
                 }
                 if (offerEntity.Price != offerDto.Price)
                 {
