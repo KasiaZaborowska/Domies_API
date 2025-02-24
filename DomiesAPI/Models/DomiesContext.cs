@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace DomiesAPI.Models;
 
@@ -29,10 +28,15 @@ public partial class DomiesContext : DbContext
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+
     public virtual DbSet<Application> Applications { get; set; }
+
     public virtual DbSet<Opinion> Opinions { get; set; }
+
     public virtual DbSet<Photo> Photos { get; set; }
+
     public virtual DbSet<Facility> Facilities { get; set; }
+
     public virtual DbSet<OfferFacility> OfferFacilities { get; set; }
 
 
