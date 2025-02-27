@@ -28,6 +28,7 @@
         //public List<AnimalTypeDto>? OfferAnimalTypes { get; set; }
         public string OfferAnimalTypes { get; set; } = null!;
         public List<ApplicationDtoRead> Applications { get; set; } = null!;
+        public List<FacilityDto>? Facilities { get; set; }
 
         public IFormFile? File { get; set; }
         public string? Photo { get; set; }
