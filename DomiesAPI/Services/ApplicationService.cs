@@ -11,6 +11,7 @@ namespace DomiesAPI.Services
     {
         Task<List<ApplicationDtoRead>> GetApplications(String userEmail);
         Task<ApplicationDtoRead> GetApplicationById(int id, String userEmail);
+        Task<string> ChangeApplicationStatus(int id, string newStatus, String userEmail);
         Task<string> CreateApplication(ApplicationDto applicationDto, String userEmail);
         Task<string> UpdateApplication(int id, ApplicationDto applicationDto, String userEmail);
         // Task<ApplicationDto> UpdateApplication(int id, ApplicationDto applicationDto);
@@ -48,6 +49,15 @@ namespace DomiesAPI.Services
                          ApplicationStatus = a.ApplicationStatus,
                          ApplicationDateAdd = a.ApplicationDateAdd,
                          Note = a.Note,
+                         Opinions = a.Opinions.Select(opinion => new OpinionDto
+                         {
+                             Id = opinion.Id,
+                             Rating = opinion.Rating,
+                             Comment = opinion.Comment,
+                             ApplicationId = opinion.ApplicationId,
+                             UserEmail = opinion.UserEmail,
+                             OpinionDateAdd = opinion.OpinionDateAdd,
+                         }).ToList(),
                          //City = o.Address.City,
 
                          //Animals = string.Join(", ",
@@ -102,6 +112,15 @@ namespace DomiesAPI.Services
                          ApplicationStatus = a.ApplicationStatus,
                          ApplicationDateAdd = a.ApplicationDateAdd,
                          Note = a.Note,
+                         Opinions = a.Opinions.Select(opinion => new OpinionDto
+                         {
+                             Id = opinion.Id,
+                             Rating = opinion.Rating,
+                             Comment = opinion.Comment,
+                             ApplicationId = opinion.ApplicationId,
+                             UserEmail = opinion.UserEmail,
+                             OpinionDateAdd = opinion.OpinionDateAdd,
+                         }).ToList()
                      })
                     .FirstOrDefaultAsync();
                 Console.WriteLine(applicationDto);
@@ -114,6 +133,7 @@ namespace DomiesAPI.Services
             }
         }
 
+
         public async Task<string> CreateApplication(ApplicationDto applicationDto, String userEmail)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -125,8 +145,8 @@ namespace DomiesAPI.Services
                     DateStart = applicationDto.DateStart,
                     DateEnd = applicationDto.DateEnd,
                     OfferId = applicationDto.OfferId,
-                    Applicant  = userEmail,
-                    ApplicationStatus = applicationDto.ApplicationStatus,
+                    Applicant = userEmail,
+                    ApplicationStatus = "Oczekująca",
                     ApplicationDateAdd = DateTime.Now,
                     Note = applicationDto.Note,
                 };
@@ -163,6 +183,33 @@ namespace DomiesAPI.Services
                 throw new ApplicationException("Błąd podczas tworzenia aplikacji", ex);
             }
         }
+        public async Task<string> ChangeApplicationStatus(int id, string newStatus, String userEmail)
+        {
+            try
+            {
+                var applicationEntity = await _context.Applications
+                    .Include(a => a.Offer)
+                    .Where(a => a.Id == id && userEmail == a.Offer.Host)
+                    .FirstOrDefaultAsync();
+
+                if (applicationEntity == null ) {
+                    return "Nie ma takiej aplikacji dla aktualnie zalogowanego użytkownika.";
+                }
+
+                applicationEntity.ApplicationStatus = newStatus;
+                await _context.SaveChangesAsync();
+
+
+                Console.WriteLine(applicationEntity);
+                return $"Status aplikacji zmieniony na {newStatus}";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd", ex);
+            }
+        }
+
 
         public async Task<string> UpdateApplication(int id, ApplicationDto applicationDto, String userEmail)
         {
