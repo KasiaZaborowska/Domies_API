@@ -63,7 +63,13 @@ namespace DomiesAPI.Services
                             o.OfferAnimalTypes
                             .Select(oat => oat.AnimalType.Type)),
 
+                         Facilities = o.Facilities.Select(f => new FacilityDto
+                         {
+                             Id = f.Id,
+                             FacilitiesType = f.FacilitiesType,
+                             FacilitiesDescription = f.FacilitiesDescription,
 
+                         }).ToList(),
 
                          Applications = o.Applications.Select(a => new ApplicationDtoRead
                          {
@@ -128,6 +134,7 @@ namespace DomiesAPI.Services
                     .ThenInclude(o => o.Animals)
                     .Include(o => o.Applications)
                     .ThenInclude(o => o.Opinions)
+                    //.Include(o => o.Facilities)
                      .Select(o => new OfferDtoRead
                      {
                          Id = o.Id,
@@ -147,6 +154,13 @@ namespace DomiesAPI.Services
                          Street = o.Address.Street,
                          PostalCode = o.Address.PostalCode,
 
+                         Facilities = o.Facilities.Select(f => new FacilityDto
+                         {
+                             Id = f.Id,
+                             FacilitiesType = f.FacilitiesType,
+                             FacilitiesDescription = f.FacilitiesDescription,
+
+                         }).ToList(),
 
                          OfferAnimalTypes = string.Join(", ",
                             o.OfferAnimalTypes
@@ -160,6 +174,8 @@ namespace DomiesAPI.Services
                              OfferId = a.OfferId,
                              Applicant = a.Applicant,
                              Note = a.Note,
+                             ApplicationDateAdd = a.ApplicationDateAdd,
+                             ApplicationStatus = a.ApplicationStatus,
                              Animals = a.Animals.Select(animals => new AnimalDto
                              {
                                  Id = animals.Id,
@@ -174,7 +190,8 @@ namespace DomiesAPI.Services
                                  Rating = opinion.Rating,
                                  Comment = opinion.Comment,
                                  ApplicationId = opinion.ApplicationId,
-                                 UserEmail = opinion.UserEmail
+                                 UserEmail = opinion.UserEmail,
+                                 OpinionDateAdd = opinion.OpinionDateAdd,
                              }).ToList()
                          }).ToList(),
 
@@ -192,6 +209,9 @@ namespace DomiesAPI.Services
                          //        UserEmail = opinion.UserEmail
                          //    }).ToList()
                          //}).ToList(),
+
+
+
                      })
                     .FirstOrDefaultAsync();
                 Console.WriteLine(offerDto);
@@ -233,6 +253,19 @@ namespace DomiesAPI.Services
 
                 //Console.WriteLine($"Wystąpilo photo : {photo.Id}");
 
+                //if (offerDto.Facilities != null && offerDto.Facilities.Any())
+                //{ return "brak udogodnien."; }
+
+
+                var facilitiesToOffer = await _context.Facilities
+                        //.Include(f => offerDto.Facilities)
+                        .Where(f => offerDto.Facilities.Contains(f.Id))
+                        //.Select(f => f.Id)
+                        .ToListAsync();
+               
+
+
+
                 var newOffer = new Offer
                 {
                     Name = offerDto.Name,
@@ -248,7 +281,9 @@ namespace DomiesAPI.Services
                         City = offerDto.City,
                         Street = offerDto.Street,
                         PostalCode = offerDto.PostalCode,
-                    }
+                    },
+                    Facilities = facilitiesToOffer
+
                 };
 
                 _context.Offers.Add(newOffer);
@@ -273,6 +308,7 @@ namespace DomiesAPI.Services
                     }
                 }
 
+                
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
