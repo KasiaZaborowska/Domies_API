@@ -124,6 +124,11 @@ public partial class DomiesContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("application_date_add");
+            entity.Property(e => e.ApplicationStatus)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                 .HasDefaultValue("Oczekująca")
+                .HasColumnName("application_status");
             entity.Property(e => e.DateEnd)
                 .HasColumnType("datetime")
                 .HasColumnName("date_end");
@@ -225,11 +230,31 @@ public partial class DomiesContext : DbContext
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("FK_Offers_Photo");
 
+             entity.HasMany(d => d.Facilities).WithMany(p => p.Offers)
+                .UsingEntity<Dictionary<string, object>>(
+                    "OfferFacility",
+                    r => r.HasOne<Facility>().WithMany()
+                        .HasForeignKey("FacilitieId")
+                        .HasConstraintName("FK__OfferFaci__facil__09746778"),
+                    l => l.HasOne<Offer>().WithMany()
+                        .HasForeignKey("OfferId")
+                        .HasConstraintName("FK__OfferFaci__offer__0880433F"),
+                    j =>
+                    {
+                        j.HasKey("OfferId", "FacilitieId").HasName("PK__OfferFac__5A847DB762566F5A");
+                        j.ToTable("OfferFacilities");
+                        j.IndexerProperty<int>("OfferId").HasColumnName("offer_id");
+                        j.IndexerProperty<int>("FacilitieId").HasColumnName("facilitie_id");
+                    });
+
+
         });
 
         modelBuilder.Entity<OfferFacility>(entity =>
         {
             entity.HasNoKey();
+
+            entity.ToTable("OfferFacility");
 
             entity.Property(e => e.FacilitieId).HasColumnName("facilitie_id");
             entity.Property(e => e.OfferId).HasColumnName("offer_id");
@@ -245,12 +270,10 @@ public partial class DomiesContext : DbContext
 
         modelBuilder.Entity<OfferAnimalType>(entity =>
         {
-            //entity.HasKey(e => e.Id).HasName("PK_OfferAnimalType_id");
             entity.HasKey(e => new { e.OfferId, e.AnimalTypeId });
 
             entity.ToTable("OfferAnimalType");
 
-            //entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AnimalTypeId).HasColumnName("animal_type_id");
             entity.Property(e => e.OfferId).HasColumnName("offer_id");
 
