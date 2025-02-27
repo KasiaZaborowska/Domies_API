@@ -9,7 +9,7 @@ namespace DomiesAPI.Models.ModelsDto
         [Required(ErrorMessage = "Imię opiekuna jest wymagane.")]
         public string? Name { get; set; } = null!;
 
-        [Required(ErrorMessage = "Opis oferty jest wymagany.")]
+        //[Required(ErrorMessage = "Opis oferty jest wymagany.")]
         public string? OfferDescription { get; set; } = null!;
         public string? PetSitterDescription { get; set; } = null!;
 
@@ -40,11 +40,13 @@ namespace DomiesAPI.Models.ModelsDto
         [MinLength(1, ErrorMessage = "Wymagane jest zaznaczenie co najmniej 1 opcji.")]
         public List<string>? OfferAnimalTypes { get; set; } = null!;
 
+        public List<int>? Facilities { get; set; }
 
 
+        //[Required(ErrorMessage = "Zdjęcie jest wymagane.")]
         public IFormFile? File { get; set; }
 
-        [Required(ErrorMessage = "Zdjęcie jest wymagane.")]
+        
         public string? Photo { get; set; }
     }
 }
