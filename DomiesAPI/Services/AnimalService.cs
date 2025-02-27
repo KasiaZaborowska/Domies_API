@@ -127,15 +127,28 @@ namespace DomiesAPI.Services
                 var typ = await _context.AnimalTypes.FirstOrDefaultAsync(t => t.Id == animalDto.AnimalType);
 
 
-                if ((typ == null))
+                if ((animalEntity == null))
                 {
-                    return "Nie poprawny typ.";
+                    return "Dane zwierzę nie istnieje.";
                 }
 
                 animalEntity.PetName = animalDto.PetName;
                 animalEntity.SpecificDescription = animalDto.SpecificDescription;
-                animalEntity.AnimalType = animalDto.AnimalType;
-                animalEntity.AnimalTypeNavigation = typ;
+                Console.WriteLine(animalEntity.AnimalType); 
+                Console.WriteLine(animalEntity.AnimalTypeNavigation);
+                if (animalDto.AnimalType == 0)
+                {
+                    animalEntity.AnimalTypeNavigation = animalEntity.AnimalTypeNavigation;
+                }
+                else
+                {
+                    animalEntity.AnimalType = animalDto.AnimalType;
+                    animalEntity.AnimalTypeNavigation = typ;
+                   
+                }
+
+
+
 
 
                 await _context.SaveChangesAsync();

@@ -37,8 +37,8 @@ namespace DomiesAPI.Services
                          Rating = o.Rating,
                          Comment = o.Comment,
                          ApplicationId = o.ApplicationId,
-                         UserEmail = o.UserEmail,
-                         OpinionDateAdd = DateTime.Now,
+                         UserEmail = o.UserEmail, // ZMIAENA NWEFAWe
+                         OpinionDateAdd = o.OpinionDateAdd,
                      })
                     .ToListAsync();
                 Console.WriteLine(opinionsDto);
@@ -100,7 +100,7 @@ namespace DomiesAPI.Services
                     Comment = opinionEntity.Comment,
                     ApplicationId = opinionEntity.ApplicationId,
                     UserEmail = opinionEntity.UserEmail,
-                    OpinionDateAdd = opinionEntity.OpinionDateAdd,
+                    OpinionDateAdd = DateTime.Now,
 
                 };
             }
