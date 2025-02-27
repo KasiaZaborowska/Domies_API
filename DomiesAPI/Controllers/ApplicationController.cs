@@ -105,6 +105,64 @@ namespace DomiesAPI.Controllers
 
         }
 
+        [HttpPut("accept/{id}")]
+        public async Task<IActionResult> AcceptApplicationStatus(int id )
+        {
+            var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
+            try
+            {
+                var updatedApplication = await _applicationService.ChangeApplicationStatus(id, "Zaakceptowana",userEmail);
+
+
+                if (updatedApplication == null)
+                {
+                    return Ok(new { message = "No changes were made to the application." });
+                }
+
+                _response.Result = updatedApplication;
+                _response.StatusCode = HttpStatusCode.OK;
+                //_response.Result = new { message = "Offer updated successfully." };
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+
+            }
+
+        }
+
+        [HttpPut("reject/{id}")]
+        public async Task<IActionResult> RejectApplicationStatus(int id )
+        {
+            var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
+            try
+            {
+                var updatedApplication = await _applicationService.ChangeApplicationStatus(id, "Odrzucona", userEmail);
+
+
+                if (updatedApplication == null)
+                {
+                    //_response.StatusCode = HttpStatusCode.NotFound;
+                    //return NotFound(_response);
+                    return Ok(new { message = "No changes were made to the application." });
+                }
+
+                _response.Result = updatedApplication;
+                _response.StatusCode = HttpStatusCode.OK;
+                //_response.Result = new { message = "Offer updated successfully." };
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+
+            }
+
+        }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateApplication(int id, [FromBody] ApplicationDto applicationDto)
         {
