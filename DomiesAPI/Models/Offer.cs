@@ -32,4 +32,5 @@ public partial class Offer
     //public virtual Photo? PhotoNavigation { get; set; }
 
     public virtual ICollection<OfferAnimalType> OfferAnimalTypes { get; set; } = new List<OfferAnimalType>();
+    public virtual ICollection<Facility> Facilities { get; set; } = new List<Facility>();
 }
