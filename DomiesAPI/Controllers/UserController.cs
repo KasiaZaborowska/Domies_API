@@ -3,6 +3,7 @@ using DomiesAPI.Models.ModelsDto;
 using DomiesAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Net;
 
 namespace DomiesAPI.Controllers
@@ -73,22 +74,83 @@ namespace DomiesAPI.Controllers
 
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddUser([FromBody] UserDto userDto)
+        //[HttpPost]
+        //public async Task<IActionResult> AddUser([FromBody] UserDto userDto)
+        //{
+        //    var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
+
+        //    try
+        //    {
+        //        var createdUser = await _userService.CreateUser(userDto, userEmail);
+
+        //        if (createdUser == null)
+        //        {
+        //            return BadRequest(_response);
+        //        }
+
+        //        _response.Result = createdUser;
+        //        _response.StatusCode = HttpStatusCode.Created;
+        //        return Ok(_response);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+        //        throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+
+        //    }
+
+        //}
+
+
+
+
+        //[HttpPut("{email}")]
+        //public async Task<IActionResult> UpdateApplication(string email, [FromBody] UserDto userDto)
+        //{
+        //    var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
+        //    try
+        //    {
+        //        var updatedUser = await _userService.UpdateUser(email, userDto, userEmail);
+
+
+        //        if (updatedUser == null)
+        //        {
+        //            //_response.StatusCode = HttpStatusCode.NotFound;
+        //            //return NotFound(_response);
+        //            return Ok(new { message = "No changes were made to the application." });
+        //        }
+
+        //        _response.Result = updatedUser;
+        //        _response.StatusCode = HttpStatusCode.OK;
+        //        //_response.Result = new { message = "Offer updated successfully." };
+        //        return Ok(_response);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+        //        throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+
+        //    }
+
+        //}
+
+        [HttpPut("userRole/{email}")]
+        public async Task<IActionResult> DowngradingToUserRole(string email)
         {
             var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
-
             try
             {
-                var createdUser = await _userService.CreateUser(userDto, userEmail);
+                var updatedUserRole = await _userService.ChangeRole(email, 1, userEmail);
 
-                if (createdUser == null)
+
+                if (updatedUserRole == null)
                 {
-                    return BadRequest(_response);
+                    return Ok(new { message = "No changes were made to the application." });
                 }
 
-                _response.Result = createdUser;
-                _response.StatusCode = HttpStatusCode.Created;
+                _response.Result = updatedUserRole;
+                _response.StatusCode = HttpStatusCode.OK;
+                //_response.Result = new { message = "Offer updated successfully." };
                 return Ok(_response);
             }
             catch (Exception ex)
@@ -100,23 +162,52 @@ namespace DomiesAPI.Controllers
 
         }
 
-        [HttpPut("{email}")]
-        public async Task<IActionResult> UpdateApplication(string email, [FromBody] UserDto userDto)
+        [HttpPut("managerRole/{email}")]
+        public async Task<IActionResult> PromotionToManagerRole(string email)
         {
             var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
             try
             {
-                var updatedUser = await _userService.UpdateUser(email, userDto, userEmail);
+                var updatedUserRole = await _userService.ChangeRole(email, 2, userEmail);
 
 
-                if (updatedUser == null)
+                if (updatedUserRole == null)
                 {
-                    //_response.StatusCode = HttpStatusCode.NotFound;
-                    //return NotFound(_response);
                     return Ok(new { message = "No changes were made to the application." });
                 }
 
-                _response.Result = updatedUser;
+                _response.Result = updatedUserRole;
+                _response.StatusCode = HttpStatusCode.OK;
+                //_response.Result = new { message = "Offer updated successfully." };
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+
+            }
+
+        }
+
+
+        [HttpDelete("{email}")]
+        public async Task<ActionResult<ApiResponse>> DeleteTypeOfAnimal(string email)
+        {
+            try
+            {
+                var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
+                var userToDelete = await _userService.DeleteUserById(email, userEmail);
+
+
+                if (userToDelete == null)
+                {
+                    //_response.StatusCode = HttpStatusCode.NotFound;
+                    //return NotFound(_response);
+                    return Ok(new { message = "No delete were made to the offer." });
+                }
+
+                _response.Result = userToDelete;
                 _response.StatusCode = HttpStatusCode.OK;
                 //_response.Result = new { message = "Offer updated successfully." };
                 return Ok(_response);
