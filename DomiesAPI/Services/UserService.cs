@@ -35,6 +35,7 @@ namespace DomiesAPI.Services
 
                 var userDto = await _context.Users
                     .Include(u => u.Role)
+                    .Where(u => u.Role.Name != "Admin")
                      .Select(u => new UserDto
                      {
                          Email = u.Email,
@@ -176,6 +177,7 @@ namespace DomiesAPI.Services
                 var userToDelete = await _context.Users
                      //.Include(o => o.Address)
                      .Where(a => a.Email == email)
+                     .Where(u => u.Role.Name != "Admin")
                      .FirstOrDefaultAsync(o => o.Email == email);
 
                 if (userToDelete == null)
