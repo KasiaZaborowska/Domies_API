@@ -455,9 +455,17 @@ namespace DomiesAPI.Services
                         _context.OfferAnimalTypes.Add(newAnimalTypeToOffer);
                     }
 
-                    
+                    if (offerDto.Facilities != null && offerDto.Facilities.Any())
+                    {
+                        var facilitiesToOffer = await _context.Facilities
+                       .Where(f => offerDto.Facilities.Contains(f.Id))
+                       //.Select(f => f.Id)
+                       .ToListAsync();
 
-                    
+
+                        offerEntity.Facilities = facilitiesToOffer;
+
+                    }
                 }
 
                 await _context.SaveChangesAsync();
