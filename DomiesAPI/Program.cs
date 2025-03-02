@@ -123,7 +123,8 @@ builder.Services.AddScoped<IApplicationService, ApplicationService>();
 builder.Services.AddScoped<IOpinionService, OpinionService>();
 builder.Services.AddScoped<IAnimalService, AnimalService>(); 
 builder.Services.AddScoped<IUserService,UserService>();
-builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IEmailService, EmailService>(); 
+builder.Services.AddScoped<IFacilityService, FacilityService>();
 
 builder.Services.AddCors(options =>
 {
