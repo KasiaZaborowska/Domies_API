@@ -111,8 +111,9 @@ builder.Services.AddSwaggerGen(options =>
 //        }
 //    });
 //});
-
+ 
 // database seed 
+
 builder.Services.AddScoped<DomiesSeeder>();
 
 builder.Services.AddScoped<IUserAccountService, UserAccountService>();
