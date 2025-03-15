@@ -6,7 +6,7 @@ namespace DomiesAPI.Models.ModelsDto
     {
         public int Id { get; set; }
         [Required(ErrorMessage = "Ocena jest wymagana.")]
-        public int? Rating { get; set; }
+        public int Rating { get; set; }
         [Required(ErrorMessage = "Komentarz jest wymagany.")]
         public string? Comment { get; set; }
 
@@ -17,3 +17,4 @@ namespace DomiesAPI.Models.ModelsDto
         public DateTime? OpinionDateAdd { get; set; }
     }
 }
+
