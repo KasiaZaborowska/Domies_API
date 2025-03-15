@@ -8,10 +8,6 @@ namespace DomiesAPI.Services
     {
         Task<List<FacilityDto>> GetFacilities();
         Task<FacilityDto> GetFacilityById(int id);
-        //Task<AnimalTypeDto> CreateAnimalType(AnimalTypeDto animalTypeDto);
-        //Task<AnimalTypeDto> UpdateAnimalType(int id, AnimalTypeDto animalTypeDto);
-
-        //Task<bool> DeleteAnimalTypeById(int id);
     }
     public class FacilityService : IFacilityService
     {
@@ -70,93 +66,5 @@ namespace DomiesAPI.Services
                 throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
             }
         }
-
-
-
-
-        //public async Task<AnimalTypeDto> CreateAnimalType(AnimalTypeDto animalTypeDto)
-        //{
-        //    try
-        //    {
-        //        var animalTypeEntity = new AnimalType
-        //        {
-        //            Type = animalTypeDto.Type
-
-        //        };
-
-        //        _context.AnimalTypes.Add(animalTypeEntity);
-        //        await _context.SaveChangesAsync();
-
-        //        return new AnimalTypeDto
-        //        {
-        //            Type = animalTypeEntity.Type
-
-        //        };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-        //        throw new ApplicationException("Błąd podczas tworzenia typu zwierzęcia", ex);
-        //    }
-        //}
-
-        //public async Task<AnimalTypeDto> UpdateAnimalType(int id, AnimalTypeDto animalTypeDto)
-        //{
-        //    try
-        //    {
-        //        var animalTypeEntity = await _context.AnimalTypes
-        //            .FirstOrDefaultAsync(t => t.Id == id);
-
-        //        if (animalTypeEntity == null)
-        //        {
-        //            return null;
-        //        }
-
-        //        if (!string.IsNullOrEmpty(animalTypeDto.Type) && animalTypeEntity.Type != animalTypeDto.Type)
-        //        {
-        //            animalTypeEntity.Type = animalTypeDto.Type;
-
-
-        //        }
-
-        //        await _context.SaveChangesAsync();
-
-        //        return new AnimalTypeDto
-        //        {
-        //            Type = animalTypeEntity.Type
-
-        //        };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-        //        throw new ApplicationException("Błąd podczas edytowania typu zwierzęcia", ex);
-        //    }
-        //}
-
-        //public async Task<bool> DeleteAnimalTypeById(int id)
-        //{
-        //    try
-        //    {
-        //        var animalTypeToDelete = await _context.AnimalTypes
-        //             .FirstOrDefaultAsync(o => o.Id == id);
-
-        //        if (animalTypeToDelete == null)
-        //        {
-        //            return false;
-        //        }
-        //        _context.AnimalTypes.Remove(animalTypeToDelete);
-        //        await _context.SaveChangesAsync();
-
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-        //        throw new ApplicationException("Błąd podczas usuwania typu zwierzęcia", ex);
-        //    }
-        //}
-
-
     }
 }

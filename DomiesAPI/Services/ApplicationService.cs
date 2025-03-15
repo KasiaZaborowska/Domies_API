@@ -14,7 +14,6 @@ namespace DomiesAPI.Services
         Task<string> ChangeApplicationStatus(int id, string newStatus, String userEmail);
         Task<string> CreateApplication(ApplicationDto applicationDto, String userEmail);
         Task<string> UpdateApplication(int id, ApplicationDto applicationDto, String userEmail);
-        // Task<ApplicationDto> UpdateApplication(int id, ApplicationDto applicationDto);
         Task<bool> DeleteApplicationById(int id, String userEmail);
     }
     public class ApplicationService : IApplicationService
@@ -81,7 +80,7 @@ namespace DomiesAPI.Services
 
                             }).ToList()
                             : null,
-                         // ta łączona s  READ = o. ICOLLECTION OFFER ANIMAL TYPEs
+                         // ta łączona s  READ = o. 
                      })
                     .ToListAsync();
                 Console.WriteLine(applicationsDto);

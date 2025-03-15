@@ -10,9 +10,6 @@ namespace DomiesAPI.Services
         Task<List<UserDto>> GetUsers(String userEmail);
         Task<UserDto> GetUserById(string email, String userEmail);
         Task<string> ChangeRole(string email, int newRole, String userEmail);
-        //Task<string> CreateUser(UserDto userDto, String userEmail);
-        //Task<string> UpdateUser(string email, UserDto userDto, String userEmail);
-        // Task<ApplicationDto> UpdateApplication(int id, ApplicationDto applicationDto);
         Task<bool> DeleteUserById(string email, String userEmail);
     }
 
@@ -85,66 +82,6 @@ namespace DomiesAPI.Services
             }
         }
 
-        //public async Task<string> CreateUser(UserDto userDto, String userEmail)
-        //{
-        //    using var transaction = await _context.Database.BeginTransactionAsync();
-
-        //    try
-        //    {
-        //        var userEntity = new User
-        //        {
-        //            Email = userDto.Email,
-        //            FirstName = userDto.FirstName,
-        //            LastName = userDto.LastName,
-        //            PhoneNumber = userDto.PhoneNumber,
-        //            RoleId = userDto.RoleId,
-        //            DateAdd = DateTime.Now,
-        //        };
-
-
-        //        _context.Users.Add(userEntity);
-        //        await _context.SaveChangesAsync();
-        //        await transaction.CommitAsync();
-
-        //        return "Stworzono aplikację.";
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-        //        throw new ApplicationException("Błąd podczas tworzenia aplikacji", ex);
-        //    }
-        //}
-
-        //public async Task<string> UpdateUser(string email, UserDto userDto, String userEmail)
-        //{
-        //    try
-        //    {
-        //        var userEntity = await _context.Users
-        //            .FirstOrDefaultAsync(u => u.Email == email);
-
-        //        if (userEntity == null)
-        //        {
-        //            return null;
-        //        }
-
-        //        userEntity.Email = userDto.Email;
-        //        userEntity.FirstName = userDto.FirstName;
-        //        userEntity.LastName = userDto.LastName;
-        //        userEntity.PhoneNumber = userDto.PhoneNumber;
-        //        userEntity.RoleId = userDto.RoleId;
-
-        //        await _context.SaveChangesAsync();
-
-        //        return "Edytowano.";
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-        //        throw new ApplicationException("Błąd podczas edytowania oferty", ex);
-        //    }
-        //}
-
-
         public async Task<string> ChangeRole(string email, int newRole, String userEmail)
         {
             try
@@ -176,7 +113,6 @@ namespace DomiesAPI.Services
             try
             {
                 var userToDelete = await _context.Users
-                     //.Include(o => o.Address)
                      .Where(a => a.Email == email)
                      .Where(u => u.Role.Name != "Admin")
                      .FirstOrDefaultAsync(o => o.Email == email);

@@ -51,7 +51,7 @@ namespace DomiesAPI.Services
                 var currentTime = DateTime.Now;
                 _logger.LogInformation($"Aktualny czas: {currentTime}");
 
-                if (currentTime.Hour == 7 && currentTime.Minute == 00) // Sprawdzanie czy jest 18:50 UTC
+                if (currentTime.Hour == 7 && currentTime.Minute == 00)
                 {
                     _logger.LogInformation("Przed wysłaniem powiadomień.");
                     await SendDailyNotifications();
@@ -63,11 +63,11 @@ namespace DomiesAPI.Services
         }
         private async Task SendDailyNotifications()
         {
-            using (var scope = _serviceScopeFactory.CreateScope()) // ✅ Tworzymy nowy scope
+            using (var scope = _serviceScopeFactory.CreateScope()) 
             {
                 try
                 {
-                    var _context = scope.ServiceProvider.GetRequiredService<DomiesContext>(); // ✅ Pobieramy DbContext w scope
+                    var _context = scope.ServiceProvider.GetRequiredService<DomiesContext>(); 
                     var _emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
                     var today = DateTime.UtcNow.Date;
                     Console.WriteLine(today);
@@ -110,9 +110,6 @@ namespace DomiesAPI.Services
                     foreach (var application in applications)
                     {
                         var user = application.Applicant;
-                        //var body = $"Witaj,\n\nMasz zwierzaki do odebrania:\n WITAJ .. " +
-                        //string.Join("\n", application.Applicant) +
-                        //$"\n\nUsługa ID: {application.OfferId}";
 
                         string formattedDateEnd = application.DateEnd.ToString("dd.MM.yyyy");
                         string formattedDateStart = application.DateStart.ToString("dd.MM.yyyy");

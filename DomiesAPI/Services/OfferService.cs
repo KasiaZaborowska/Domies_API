@@ -98,7 +98,6 @@ namespace DomiesAPI.Services
                          }).ToList(),
 
                          //Applications = o.Applications
-                         // DO DODANIA WYSWITANIE APLIAKCJI !!!!!!!!!!!!!!!
 
                          //OfferAnimalTypes = o.OfferAnimalType != null 
                          //? o.OfferAnimalType
@@ -134,7 +133,6 @@ namespace DomiesAPI.Services
                     .ThenInclude(o => o.Animals)
                     .Include(o => o.Applications)
                     .ThenInclude(o => o.Opinions)
-                    //.Include(o => o.Facilities)
                      .Select(o => new OfferDtoRead
                      {
                          Id = o.Id,
@@ -292,7 +290,6 @@ namespace DomiesAPI.Services
                 if (offerDto.OfferAnimalTypes != null && offerDto.OfferAnimalTypes.Any())
                 {
                     var animalTypeToOffer = await _context.AnimalTypes
-                        //.Where(at => at.Type.Equals("dog") || at.Type.Equals("cat"))
                         .Where(at => offerDto.OfferAnimalTypes.Contains(at.Type))
                         .Select(at => at.Id)
                         .ToListAsync();
@@ -420,7 +417,6 @@ namespace DomiesAPI.Services
                 if (offerDto.OfferAnimalTypes != null && offerDto.OfferAnimalTypes.Any())
                 {
                     var animalTypeToOffer = await _context.AnimalTypes
-                        //.Where(at => at.Type.Equals("dog") || at.Type.Equals("cat"))
                         .Where(at => offerDto.OfferAnimalTypes.Contains(at.Type))
                         .Select(at => at.Id)  
                         .ToListAsync();
