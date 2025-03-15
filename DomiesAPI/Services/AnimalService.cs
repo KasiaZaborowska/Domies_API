@@ -11,7 +11,6 @@ namespace DomiesAPI.Services
         Task<AnimalDto> GetAnimalById(int id, String userEmail);
         Task<string> CreateAnimal(AnimalDto animalDto, String userEmail);
         Task<string> UpdateAnimal(int id, AnimalDto animalDto, String userEmail);
-
         Task<bool> DeleteAnimalById(int id, String userEmail);
     }
     public class AnimalService : IAnimalService
@@ -28,7 +27,7 @@ namespace DomiesAPI.Services
             {
                 if (_context.AnimalTypes == null)
                 {
-                    throw new ApplicationException("Tablica Animal nie jest zainicjalizowana.");
+                    throw new ApplicationException("Tablica AnimalTypes nie jest zainicjalizowana.");
                 }
 
                 var animals = await _context.Animals
@@ -50,7 +49,7 @@ namespace DomiesAPI.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji o pupilach.", ex);
             }
         }
 
