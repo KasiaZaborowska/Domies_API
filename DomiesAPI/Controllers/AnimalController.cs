@@ -27,34 +27,52 @@ namespace DomiesAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetALl()
         {
-            var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
-            var animals = await _animalService.GetAnimals(userEmail);
-            _response.Result = animals;
-            _response.StatusCode = HttpStatusCode.OK;
-            return Ok(_response);
+            try
+            {
+                var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
+                var animals = await _animalService.GetAnimals(userEmail);
+                _response.Result = animals;
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd podczas pobierania zwierząt.", ex);
+            }
+
         }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
-            if (id == 0)
+            try
             {
-                _response.StatusCode = HttpStatusCode.BadRequest;
-                _response.IsSuccess = false;
-                return BadRequest(_response);
+                if (id == 0)
+                {
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    _response.IsSuccess = false;
+                    return BadRequest(_response);
+                }
+                var animalType = await _animalService.GetAnimalById(id, userEmail);
+
+
+                if (animalType == null)
+                {
+                    _response.StatusCode = HttpStatusCode.NotFound;
+                    return NotFound(_response);
+                }
+
+                _response.Result = animalType;
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
             }
-            var animalType = await _animalService.GetAnimalById(id, userEmail);
-
-
-            if (animalType == null)
+            catch (Exception ex)
             {
-                _response.StatusCode = HttpStatusCode.NotFound;
-                return NotFound(_response);
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji o zwierzęciu.", ex);
             }
-
-            _response.Result = animalType;
-            _response.StatusCode = HttpStatusCode.OK;
-            return Ok(_response);
         }
 
         [HttpPost]
@@ -78,7 +96,7 @@ namespace DomiesAPI.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+                throw new ApplicationException("Błąd podczas tworzenia zwierzęcia.", ex);
 
             }
         }
@@ -94,7 +112,7 @@ namespace DomiesAPI.Controllers
 
                 if (updatedAnimalType == null)
                 {
-                    return Ok(new { message = "No changes were made to the animal type." });
+                    return Ok(new { message = "Brak zmian." });
                 }
 
                 _response.Result = updatedAnimalType;
@@ -105,7 +123,7 @@ namespace DomiesAPI.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+                throw new ApplicationException("Błąd podczas aktualizacji zwierzaka.", ex);
 
             }
         }
@@ -123,7 +141,7 @@ namespace DomiesAPI.Controllers
                 {
                     //_response.StatusCode = HttpStatusCode.NotFound;
                     //return NotFound(_response);
-                    return Ok(new { message = "No delete were made to the offer." });
+                    return Ok(new { message = "Nie usunięto żadnego zwierzaka." });
                 }
 
                 _response.Result = animalTypeToDelete;
@@ -134,7 +152,7 @@ namespace DomiesAPI.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+                throw new ApplicationException("Błąd podczas usuwania zwierzaka.", ex);
 
             }
 

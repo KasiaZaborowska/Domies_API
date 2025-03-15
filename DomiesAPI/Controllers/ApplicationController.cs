@@ -13,13 +13,11 @@ namespace DomiesAPI.Controllers
     [Authorize]
     public class ApplicationController : ControllerBase
     {
-        //private readonly DomiesContext _context;
         private ApiResponse _response;
         private IApplicationService _applicationService;
 
         public ApplicationController(DomiesContext context, IApplicationService applicationService)
         {
-            //_context = context;
             _response = new ApiResponse();
             _applicationService = applicationService;
         }
@@ -28,33 +26,28 @@ namespace DomiesAPI.Controllers
 
         public async Task<IActionResult> GetALl()
         {
-
-            //if (ModelState.IsValid)
-            //{
-            //    string result = await _offerService.GetOffers();
-            //    if (result == "Niepoprawny email lub hasło")
-            //    {
-            //        return BadRequest(new { message = result });
-            //    }
-            //    else
-            //    {
-            //        return Ok(new { token = result, user = userdto.Email });
-            //    }
-            //}
-            //return BadRequest(new { message = "Wystąpił błąd w rejestracji." });
-
-            var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
-            var applications = await _applicationService.GetApplications(userEmail);
-            _response.Result = applications;
-            _response.StatusCode = HttpStatusCode.OK;
-            return Ok(_response);
+            try
+            {
+                var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
+                var applications = await _applicationService.GetApplications(userEmail);
+                _response.Result = applications;
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd podczas pobierania aplikacji.", ex);
+            }
         }
 
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
+            try
+            {
+                var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
             if (id == 0)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
@@ -73,8 +66,12 @@ namespace DomiesAPI.Controllers
             _response.Result = application;
             _response.StatusCode = HttpStatusCode.OK;
             return Ok(_response);
-
-
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd podczas pobierania szczegółów aplikacji.", ex);
+            }
         }
 
         [HttpPost]
@@ -99,7 +96,7 @@ namespace DomiesAPI.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+                throw new ApplicationException("Błąd podczas dodawania aplikacji.", ex);
 
             }
 
@@ -116,18 +113,17 @@ namespace DomiesAPI.Controllers
 
                 if (updatedApplication == null)
                 {
-                    return Ok(new { message = "No changes were made to the application." });
+                    return Ok(new { message = "Brak zmian w statusie aplikacji." });
                 }
 
                 _response.Result = updatedApplication;
                 _response.StatusCode = HttpStatusCode.OK;
-                //_response.Result = new { message = "Offer updated successfully." };
                 return Ok(_response);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+                throw new ApplicationException("Błąd podczas aktualizowania statusu aplikacji.", ex);
 
             }
 
@@ -144,20 +140,17 @@ namespace DomiesAPI.Controllers
 
                 if (updatedApplication == null)
                 {
-                    //_response.StatusCode = HttpStatusCode.NotFound;
-                    //return NotFound(_response);
-                    return Ok(new { message = "No changes were made to the application." });
+                    return Ok(new { message = "Brak zmian w statusie aplikacji." });
                 }
 
                 _response.Result = updatedApplication;
                 _response.StatusCode = HttpStatusCode.OK;
-                //_response.Result = new { message = "Offer updated successfully." };
                 return Ok(_response);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+                throw new ApplicationException("Błąd podczas aktualizowania statusu aplikacji.", ex);
 
             }
 
@@ -174,20 +167,17 @@ namespace DomiesAPI.Controllers
 
                 if (updatedApplication == null)
                 {
-                    //_response.StatusCode = HttpStatusCode.NotFound;
-                    //return NotFound(_response);
-                    return Ok(new { message = "No changes were made to the application." });
+                    return Ok(new { message = "Brak zmian w aplikacji." });
                 }
 
                 _response.Result = updatedApplication;
                 _response.StatusCode = HttpStatusCode.OK;
-                //_response.Result = new { message = "Offer updated successfully." };
                 return Ok(_response);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+                throw new ApplicationException("Błąd podczas aktualizowania aplikacji.", ex);
 
             }
 
@@ -204,20 +194,17 @@ namespace DomiesAPI.Controllers
 
                 if (applicationToDelete == null)
                 {
-                    //_response.StatusCode = HttpStatusCode.NotFound;
-                    //return NotFound(_response);
-                    return Ok(new { message = "No delete were made to the application." });
+                    return Ok(new { message = "Nie usunięto żadnej aplikacji." });
                 }
 
                 _response.Result = applicationToDelete;
                 _response.StatusCode = HttpStatusCode.OK;
-                //_response.Result = new { message = "Offer updated successfully." };
                 return Ok(_response);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+                throw new ApplicationException("Błąd podczas usuwania aplikacji.", ex);
 
             }
         }

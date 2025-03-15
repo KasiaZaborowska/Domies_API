@@ -14,13 +14,11 @@ namespace DomiesAPI.Controllers
     [ApiController]
     public class OpinionController : ControllerBase
     {
-        //private readonly DomiesContext _context;
         private ApiResponse _response;
         private IOpinionService _opinionService;
 
         public OpinionController(DomiesContext context, IOpinionService opinionService)
         {
-            //_context = context;
             _response = new ApiResponse();
             _opinionService = opinionService;
         }
@@ -29,52 +27,52 @@ namespace DomiesAPI.Controllers
 
         public async Task<IActionResult> GetALl()
         {
+            try
+            {
+                var opinions = await _opinionService.GetOpinions();
+                _response.Result = opinions;
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd podczas pobierania opinii.");
 
-            //if (ModelState.IsValid)
-            //{
-            //    string result = await _offerService.GetOffers();
-            //    if (result == "Niepoprawny email lub hasło")
-            //    {
-            //        return BadRequest(new { message = result });
-            //    }
-            //    else
-            //    {
-            //        return Ok(new { token = result, user = userdto.Email });
-            //    }
-            //}
-            //return BadRequest(new { message = "Wystąpił błąd w rejestracji." });
-
-            var opinions = await _opinionService.GetOpinions();
-            _response.Result = opinions;
-            _response.StatusCode = HttpStatusCode.OK;
-            return Ok(_response);
+            }
         }
 
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-
-            if (id == 0)
+            try
             {
-                _response.StatusCode = HttpStatusCode.BadRequest;
-                _response.IsSuccess = false;
-                return BadRequest(_response);
+                if (id == 0)    
+                {
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    _response.IsSuccess = false;
+                    return BadRequest(_response);
+                }
+                var opinion = await _opinionService.GetOpinionById(id);
+
+
+                if (opinion == null)
+                {
+                    _response.StatusCode = HttpStatusCode.NotFound;
+                    return NotFound(_response);
+                }
+
+                _response.Result = opinion;
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
             }
-            var opinion = await _opinionService.GetOpinionById(id);
-
-
-            if (opinion == null)
+            catch (Exception ex)
             {
-                _response.StatusCode = HttpStatusCode.NotFound;
-                return NotFound(_response);
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji o opinii.", ex);
+
             }
-
-            _response.Result = opinion;
-            _response.StatusCode = HttpStatusCode.OK;
-            return Ok(_response);
-
-
         }
 
         [HttpPost]
@@ -96,7 +94,7 @@ namespace DomiesAPI.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+                throw new ApplicationException("Błąd podczas dodawania opinii.", ex);
 
             }
 
@@ -112,20 +110,17 @@ namespace DomiesAPI.Controllers
 
                 if (updatedApplication == null)
                 {
-                    //_response.StatusCode = HttpStatusCode.NotFound;
-                    //return NotFound(_response);
-                    return Ok(new { message = "No changes were made to the application." });
+                    return Ok(new { message = "Brak zmian." });
                 }
 
                 _response.Result = updatedApplication;
                 _response.StatusCode = HttpStatusCode.OK;
-                //_response.Result = new { message = "Offer updated successfully." };
                 return Ok(_response);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+                throw new ApplicationException("Błąd podczas aktualizowania opinii.", ex);
 
             }
 
@@ -141,20 +136,17 @@ namespace DomiesAPI.Controllers
 
                 if (opinionToDelete == null)
                 {
-                    //_response.StatusCode = HttpStatusCode.NotFound;
-                    //return NotFound(_response);
-                    return Ok(new { message = "No delete were made to the application." });
+                    return Ok(new { message = "Nie usunięto żadnej opinii." });
                 }
 
                 _response.Result = opinionToDelete;
                 _response.StatusCode = HttpStatusCode.OK;
-                //_response.Result = new { message = "Offer updated successfully." };
                 return Ok(_response);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+                throw new ApplicationException("Wystąpił błąd podczas usuwania opinii.", ex);
 
             }
         }

@@ -45,37 +45,53 @@ namespace DomiesAPI.Controllers
             //}
             //return BadRequest(new { message = "Wystąpił błąd w rejestracji." });
 
-            var offers = await _offerService.GetOffers();
-            _response.Result = offers;
-            _response.StatusCode = HttpStatusCode.OK;
-            return Ok(_response);
+            try
+            {
+                var offers = await _offerService.GetOffers();
+                _response.Result = offers;
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd podczas pobierania ofert.", ex);
+
+            }
+
         }
 
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-
-            if (id == 0)
+            try
             {
-                _response.StatusCode = HttpStatusCode.BadRequest;
-                _response.IsSuccess = false;
-                return BadRequest(_response);
+                if (id == 0)
+                {
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    _response.IsSuccess = false;
+                    return BadRequest(_response);
+                }
+                var offer = await _offerService.GetOfferById(id);
+
+
+                if (offer == null)
+                {
+                    _response.StatusCode = HttpStatusCode.NotFound;
+                    return NotFound(_response);
+                }
+
+                _response.Result = offer;
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
             }
-            var offer = await _offerService.GetOfferById(id);
-
-
-            if (offer == null)
+            catch (Exception ex)
             {
-                _response.StatusCode = HttpStatusCode.NotFound;
-                return NotFound(_response);
+                Console.WriteLine($"Wystąpił błąd: {ex.Message}");
+                throw new ApplicationException("Błąd podczas pobierania szczegółów oferty.", ex);
+
             }
-
-            _response.Result = offer;
-            _response.StatusCode = HttpStatusCode.OK;
-            return Ok(_response);
-
-
         }
 
         [HttpPost]
@@ -98,7 +114,7 @@ namespace DomiesAPI.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+                throw new ApplicationException("Błąd podczas dodawania oferty.", ex);
 
             }
 
@@ -117,7 +133,7 @@ namespace DomiesAPI.Controllers
                 {
                     //_response.StatusCode = HttpStatusCode.NotFound;
                     //return NotFound(_response);
-                    return Ok(new { message = "No changes were made to the offer." });
+                    return Ok(new { message = "Brak zmian." });
                 }
 
                 _response.Result = updatedOffer;
@@ -128,7 +144,7 @@ namespace DomiesAPI.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+                throw new ApplicationException("Błąd podczas aktualizacji oferty.", ex);
 
             }
 
@@ -147,7 +163,7 @@ namespace DomiesAPI.Controllers
                 {
                     //_response.StatusCode = HttpStatusCode.NotFound;
                     //return NotFound(_response);
-                    return Ok(new { message = "No delete were made to the offer." });
+                    return Ok(new { message = "Nie usunięto żadnej oferty." });
                 }
 
                 _response.Result = offerToDelete;
@@ -158,7 +174,7 @@ namespace DomiesAPI.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"Wystąpił błąd: {ex.Message}");
-                throw new ApplicationException("Błąd podczas pobierania szczegółowych informacji", ex);
+                throw new ApplicationException("Błąd podczas usuwania oferty.", ex);
 
             }
         }

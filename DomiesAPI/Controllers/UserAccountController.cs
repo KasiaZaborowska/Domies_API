@@ -23,15 +23,10 @@ namespace DomiesAPI.Controllers
     [ApiController]
     public class UserAccountController : ControllerBase
     {
-
-        //private readonly DomiesContext _context;
-        //private ApiResponse _response;
         private IUserAccountService _userAccountService;
         private IEmailService _emailService;
         public UserAccountController(IUserAccountService userAccountService, IEmailService emailService)
         {
-            //_context = context;
-            //_response = apiResponse;
             _userAccountService = userAccountService;
             _emailService = emailService;
         }
@@ -179,15 +174,22 @@ namespace DomiesAPI.Controllers
         public async Task<IActionResult> VerifyUserEmail(string token)
         {
             string result = await _userAccountService.VerifyUserEmail(token);
-            if(result == "Niepoprawny token")
+            try
             {
-                return BadRequest(new { message = result });
+                if(result == "Niepoprawny token")
+                {
+                    return BadRequest(new { message = result });
+                }
+                else
+                {
+                    return Ok("Twoje konto zostało zweryfikowane!");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return Ok("Twoje konto zostało zweryfikowane!");
+                return BadRequest(new { message = "Wystąpił błąd w rejestracji." });
             }
-           
+
         }
 
 
