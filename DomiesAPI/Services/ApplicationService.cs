@@ -156,12 +156,8 @@ namespace DomiesAPI.Services
                 if (applicationDto.Animals != null && applicationDto.Animals.Any())
                 {
                     var animalToApplication = await _context.Animals
-                        //.Where(at => at.Type.Equals("dog") || at.Type.Equals("cat"))
                         .Where(at => applicationDto.Animals.Contains(at.Id))
-                        //.Select(at => at.Id)
                         .ToListAsync();
-
-                    //applicationEntity.Animals = animalToApplication;
 
                     foreach (var animal in animalToApplication)
                     {
