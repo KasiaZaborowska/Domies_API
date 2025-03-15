@@ -7,7 +7,7 @@ public partial class Opinion
 {
     public int Id { get; set; }
 
-    public int? Rating { get; set; }
+    public int Rating { get; set; }
 
     public string? Comment { get; set; }
 
@@ -15,7 +15,7 @@ public partial class Opinion
 
     public string UserEmail { get; set; } = null!;
 
-    public DateTime? OpinionDateAdd { get; set; }
+    public DateTime OpinionDateAdd { get; set; }
 
     public virtual Application Application { get; set; } = null!;
 
