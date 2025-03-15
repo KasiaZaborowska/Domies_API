@@ -7,13 +7,19 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Env.Load();
+var connectionString = Env.GetString("CONNECTION_STRING");
+var frontendUrl = Env.GetString("FRONTEND_URL");
+
 
 
 builder.Services.AddDbContext<DomiesContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DeafultDbConnection"));
+    options.UseSqlServer(connectionString);
 });
 
 
@@ -31,13 +37,13 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key), // U¿ycie klucza z appsettings.json
-        ValidateIssuer = true, // Walidacja Issuer
-        ValidateAudience = true, // Walidacja Audience
-        ValidIssuer = jwtSettings["JwtIssuer"], // Issuer z konfiguracji
-        ValidAudience = jwtSettings["JwtIssuer"], // Audience z konfiguracji
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = true, 
+        ValidateAudience = true,
+        ValidIssuer = jwtSettings["JwtIssuer"], 
+        ValidAudience = jwtSettings["JwtIssuer"],
         RequireExpirationTime = true,
-        ValidateLifetime = true, // Walidacja, czy token nie wygas³
+        ValidateLifetime = true, 
         RoleClaimType = "Role"
     };
 });
@@ -47,13 +53,7 @@ builder.Services.AddAuthorization(options =>
 });
 
 
-
-
-// Add services to the container.
-
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -84,36 +84,6 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 
-//builder.Services.AddSwaggerGen(c => {
-//    c.SwaggerDoc("v1", new OpenApiInfo
-//    {
-//        Title = "JWTToken_Auth_API",
-//        Version = "v1"
-//    });
-//    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
-//    {
-//        Name = "Authorization",
-//        Type = SecuritySchemeType.ApiKey,
-//        Scheme = "Bearer",
-//        BearerFormat = "JWT",
-//        In = ParameterLocation.Header,
-//        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 1safsfsdfdfd\"",
-//    });
-//    c.AddSecurityRequirement(new OpenApiSecurityRequirement {
-//        {
-//            new OpenApiSecurityScheme {
-//                Reference = new OpenApiReference {
-//                    Type = ReferenceType.SecurityScheme,
-//                        Id = "Bearer"
-//                }
-//            },
-//            new string[] {}
-//        }
-//    });
-//});
- 
-// database seed 
-
 builder.Services.AddScoped<DomiesSeeder>();
 
 builder.Services.AddScoped<IUserAccountService, UserAccountService>();
@@ -127,18 +97,19 @@ builder.Services.AddScoped<IUserService,UserService>();
 builder.Services.AddScoped<IEmailService, EmailService>(); 
 builder.Services.AddScoped<IFacilityService, FacilityService>();
 
+builder.Services.AddHostedService<NotificationService>();
+builder.Services.AddLogging(); // Rejestracja logowania
+
+
 builder.Services.AddCors(options =>
 {
-    // first policy
-    options.AddPolicy("frontApp", policyBuilder =>
-    {
-        policyBuilder.WithOrigins("http://localhost:3000");
-        policyBuilder.AllowAnyHeader();
-        policyBuilder.AllowAnyMethod();
-        policyBuilder.AllowCredentials();
-    });
+    options.AddPolicy("frontApp",
+        builder => builder
+            .WithOrigins(frontendUrl)
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
 });
-
 
 
 var app = builder.Build();
@@ -151,7 +122,6 @@ using (var scope = app.Services.CreateScope())
 }
 
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
