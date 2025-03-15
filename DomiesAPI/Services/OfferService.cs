@@ -457,12 +457,22 @@ namespace DomiesAPI.Services
 
                     if (offerDto.Facilities != null && offerDto.Facilities.Any())
                     {
+
+                        var currentFacilities = await _context.Offers
+                            .Where(of => of.Id == offerEntity.Id)
+                            .Include(of => of.Facilities)
+                            .FirstOrDefaultAsync();
+
+                        if (currentFacilities != null)
+                        {
+                            currentFacilities.Facilities.Clear();
+                        }
+
                         var facilitiesToOffer = await _context.Facilities
                        .Where(f => offerDto.Facilities.Contains(f.Id))
-                       //.Select(f => f.Id)
                        .ToListAsync();
 
-
+                        
                         offerEntity.Facilities = facilitiesToOffer;
 
                     }
