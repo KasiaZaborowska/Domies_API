@@ -87,7 +87,7 @@ namespace DomiesAPI.Services
                     Comment = opinionDto.Comment,
                     ApplicationId = opinionDto.ApplicationId,
                     UserEmail = opinionDto.UserEmail,
-                    OpinionDateAdd = opinionDto.OpinionDateAdd,
+                    OpinionDateAdd = DateTime.Now,
 
                 };
 
