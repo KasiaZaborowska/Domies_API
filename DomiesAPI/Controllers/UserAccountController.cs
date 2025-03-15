@@ -153,12 +153,12 @@ namespace DomiesAPI.Controllers
                         </div>
                     </div>
                     <div class='footer'>
-                        <p>© 2025 [Nazwa Twojej Aplikacji]. Wszelkie prawa zastrzeżone.</p>
+                        <p>© 2025 Domies. Wszelkie prawa zastrzeżone.</p>
                     </div>
                     </div>
                 </body>
                 </html>";
-                    await _emailService.SendVerificationEmailAsync(userdto.Email, emailSubject, emailBody);
+                    await _emailService.SendEmailAsync(userdto.Email, emailSubject, emailBody);
 
                     return Ok(new { token = result, user = userdto.Email });
                 }
