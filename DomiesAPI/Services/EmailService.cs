@@ -8,7 +8,7 @@ namespace DomiesAPI.Services
 {
     public interface IEmailService
     {
-        Task SendVerificationEmailAsync(string recipientEmail, string subject, string body);
+        Task SendEmailAsync(string recipientEmail, string subject, string body);
     }
     public class EmailService : IEmailService
     {
@@ -19,7 +19,7 @@ namespace DomiesAPI.Services
             _configuration = configuration;
         }
 
-        public async Task SendVerificationEmailAsync(string recipientEmail, string subject, string body)
+        public async Task SendEmailAsync(string recipientEmail, string subject, string body)
         {
             var smtpSettings = _configuration.GetSection("SmtpSettings");
             string host = smtpSettings["Host"];
