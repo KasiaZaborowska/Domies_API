@@ -35,12 +35,6 @@ namespace DomiesAPI.Services
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
         }
-        
-
-        public async Task SendNotificationAndEmailAsync()
-        {
-
-        }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
