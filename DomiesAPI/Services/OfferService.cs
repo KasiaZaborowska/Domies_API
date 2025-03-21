@@ -46,6 +46,7 @@ namespace DomiesAPI.Services
                          OfferDescription = o.OfferDescription,
                          PetSitterDescription = o.PetSitterDescription,
                          Host = o.Host,
+                         HostPhoneNumber = o.HostNavigation.PhoneNumber,
                          //AddressId = o.AddressId,
                          DateAdd = o.DateAdd,
                          Price = o.Price,
@@ -133,6 +134,7 @@ namespace DomiesAPI.Services
                     .ThenInclude(o => o.Animals)
                     .Include(o => o.Applications)
                     .ThenInclude(o => o.Opinions)
+                    //.Include(o => o.HostNavigation)
                      .Select(o => new OfferDtoRead
                      {
                          Id = o.Id,
@@ -140,6 +142,7 @@ namespace DomiesAPI.Services
                          OfferDescription = o.OfferDescription,
                          PetSitterDescription = o.PetSitterDescription,
                          Host = o.Host,
+                         HostPhoneNumber = o.HostNavigation.PhoneNumber,
                          //AddressId = o.AddressId,
                          DateAdd = o.DateAdd,
                          Price = o.Price,

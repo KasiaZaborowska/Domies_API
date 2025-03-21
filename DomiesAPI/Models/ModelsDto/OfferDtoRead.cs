@@ -10,6 +10,7 @@
         public string? PetSitterDescription { get; set; } = null!;
 
         public string? Host { get; set; } = null!;
+        public string? HostPhoneNumber { get; set; } = null!;
 
         public int? AddressId { get; set; }
 
