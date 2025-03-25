@@ -247,7 +247,7 @@ namespace DomiesAPI.Services
             try
             {
                 var applicationToDelete = await _context.Applications
-                     //.Include(o => o.Address)
+                     .Include(a => a.Opinions)
                      .Where(a => a.Applicant  == userEmail)
                      .FirstOrDefaultAsync(o => o.Id == id);
 
@@ -255,6 +255,15 @@ namespace DomiesAPI.Services
                 {
                     return false;
                 }
+                if (applicationToDelete.Opinions != null && applicationToDelete.Opinions.Any())
+                {
+                    Console.WriteLine($"Usuwam {applicationToDelete.Opinions.Count} opinii.");
+                    applicationToDelete.Opinions.Clear();               // usuwanie więzów integralności
+                    _context.Opinions.RemoveRange(applicationToDelete.Opinions);
+                    await _context.SaveChangesAsync();
+
+                }
+
                 _context.Applications.Remove(applicationToDelete);
                 await _context.SaveChangesAsync();
 
