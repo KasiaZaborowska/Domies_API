@@ -140,6 +140,7 @@ namespace DomiesAPI.Services
                 {
                     return false;
                 }
+
                 _context.AnimalTypes.Remove(animalTypeToDelete);
                 await _context.SaveChangesAsync();
 
