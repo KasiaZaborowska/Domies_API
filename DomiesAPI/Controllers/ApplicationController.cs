@@ -48,24 +48,24 @@ namespace DomiesAPI.Controllers
             try
             {
                 var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
-            if (id == 0)
-            {
-                _response.StatusCode = HttpStatusCode.BadRequest;
-                _response.IsSuccess = false;
-                return BadRequest(_response);
-            }
-            var application = await _applicationService.GetApplicationById(id, userEmail);
+                if (id == 0)
+                {
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    _response.IsSuccess = false;
+                    return BadRequest(_response);
+                }
+                var application = await _applicationService.GetApplicationById(id, userEmail);
 
 
-            if (application == null)
-            {
-                _response.StatusCode = HttpStatusCode.NotFound;
-                return NotFound(_response);
-            }
+                if (application == null)
+                {
+                    _response.StatusCode = HttpStatusCode.NotFound;
+                    return NotFound(_response);
+                }
 
-            _response.Result = application;
-            _response.StatusCode = HttpStatusCode.OK;
-            return Ok(_response);
+                _response.Result = application;
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
             }
             catch (Exception ex)
             {

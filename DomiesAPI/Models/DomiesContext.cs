@@ -307,7 +307,7 @@ public partial class DomiesContext : DbContext
 
             entity.HasOne(d => d.Application).WithMany(p => p.Opinions)
                 .HasForeignKey(d => d.ApplicationId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__Opinions__applic__2EDAF651");
 
             entity.HasOne(d => d.UserEmailNavigation).WithMany(p => p.Opinions)
