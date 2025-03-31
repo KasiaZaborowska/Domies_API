@@ -20,34 +20,10 @@ namespace DomiesAPI
             _env = env;
         }
 
-        //public async Task SeedPhotos()
-        //{
-        //    if (_context.Database.CanConnect())
-        //    {
-        //        var photos = await GetPhotos();
-
-        //        if (photos.Any())
-        //        {
-        //            _context.Photos.AddRange(photos);
-        //            await _context.SaveChangesAsync();
-        //            Console.WriteLine($"{photos.Count()} zdjęć zostało dodanych do bazy!");
-        //        }
-        //        else
-        //        {
-        //            Console.WriteLine("Nie dodano żadnych zdjęć.");
-        //        }
-        //    }
-        //}
-
         public void Seed()
         {
             if (_context.Database.CanConnect())
             {
-                //var pendingMigrations = _dbContext.Database.GetPendingMigrations();
-                //if (pendingMigrations != null && pendingMigrations.Any())   // czy tab z migracjami jest pusta
-                //{
-                //    _dbContext.Database.Migrate();
-                //}
 
                 if (!_context.Roles.Any())
                 {
@@ -250,7 +226,7 @@ namespace DomiesAPI
                     Email = "admin@gmail.com",
                     FirstName ="Admin",
                     LastName = "Admin",
-                    Password = "passwordAdmin",
+                    Password = "AQAAAAIAAYagAAAAEPzi4PdM0mwajkojHmZuDjcNGqfJAkVbLXH00TYQS+eezh0M3zR/bnmvAWoJBUxIpQ==",
                     PhoneNumber = "353456339",
                     IsEmailVerified = true,
                     EmailVerificationToken = "t3jc93t3cf-htyrjhar2zer1qkqd-pxh8hwbv",
@@ -262,7 +238,7 @@ namespace DomiesAPI
                     Email = "moderator@gmail.com",
                     FirstName ="Moderator",
                     LastName = "Moderator",
-                    Password = "passwordModerator",
+                    Password = "AQAAAAIAAYagAAAAEDsOtB6tvTkR8FN1O0JT+mKG+2cIYO0v52j1mYvkQUh2Mro7O22kFmgHePJBpdUcfg==",
                     PhoneNumber = "900456323",
                     IsEmailVerified = true,
                     EmailVerificationToken = "86o57jysqg-gdvuct0sqhzc7-7d4819j7d8gf",
@@ -277,7 +253,7 @@ namespace DomiesAPI
                     PhoneNumber = "800455789",
                     IsEmailVerified = true,
                     EmailVerificationToken = "00e2f-7d3mjq6zlsj1u-3cu4c4oi1-tcmjqi1",
-                    Password = "password",
+                    Password = "AQAAAAIAAYagAAAAEFn3yNNn90RmK2fvAxNkSXgX0gg189q3qYj2F/gDOxyaqNhfHRwbHQrIsbJW1AQ1VQ==",
                     RoleId = 1,
                     DateAdd= DateTime.Now,
                 },
@@ -289,7 +265,7 @@ namespace DomiesAPI
                     PhoneNumber = "555455733",
                     IsEmailVerified = true,
                     EmailVerificationToken = "agjhd-4cb3tkqp94-zpjttuzkkfgorxjvyepw",
-                    Password = "password",
+                    Password = "AQAAAAIAAYagAAAAEFn3yNNn90RmK2fvAxNkSXgX0gg189q3qYj2F/gDOxyaqNhfHRwbHQrIsbJW1AQ1VQ==",
                     RoleId = 1,
                     DateAdd= DateTime.Now,
                 },
@@ -301,7 +277,7 @@ namespace DomiesAPI
                     PhoneNumber = "336775733",
                     IsEmailVerified = true,
                     EmailVerificationToken = "xqtelts-elgzaku805mew6ct-4myovssvh3g",
-                    Password = "password",
+                    Password = "AQAAAAIAAYagAAAAEFn3yNNn90RmK2fvAxNkSXgX0gg189q3qYj2F/gDOxyaqNhfHRwbHQrIsbJW1AQ1VQ==",
                     RoleId = 1,
                     DateAdd= DateTime.Now,
                 },
