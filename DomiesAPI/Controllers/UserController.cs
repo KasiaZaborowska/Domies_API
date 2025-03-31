@@ -128,7 +128,7 @@ namespace DomiesAPI.Controllers
 
 
         [HttpDelete("{email}")]
-        public async Task<ActionResult<ApiResponse>> DeleteUser(string email)
+        public async Task<ActionResult<ApiResponse>> DeleteUser(String email)
         {
             var userEmail = IUserAccountService.getLoggedInUserEmail(HttpContext);
             try

@@ -108,13 +108,13 @@ namespace DomiesAPI.Services
         }
 
 
-        public async Task<bool> DeleteUserById(string email, String userEmail)
+        public async Task<bool> DeleteUserById(String email, String userEmail)
         {
             try
             {
                 var userToDelete = await _context.Users
-                     .Where(a => a.Email == email)
-                     .Where(u => u.Role.Name != "Admin")
+                     //.Where(a => a.Email.Equals(email))
+                     .Where(u => !u.Role.Name.Equals("Admin"))
                      .FirstOrDefaultAsync(o => o.Email == email);
 
                 if (userToDelete == null)
@@ -129,7 +129,13 @@ namespace DomiesAPI.Services
 
                     _context.Animals.RemoveRange(animalsToDelete);
 
-                    _context.SaveChanges();
+                    await _context.SaveChangesAsync();
+
+                    var opinionsToDelete = _context.Opinions.Where(p => p.UserEmail == email).ToList();
+
+                    _context.Opinions.RemoveRange(opinionsToDelete);
+
+                    await _context.SaveChangesAsync();
 
                     _context.Users.Remove(userToDelete);
                     await _context.SaveChangesAsync();
