@@ -71,8 +71,7 @@ namespace DomiesAPI.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Manager")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Manager, Admin")]
         public async Task<ActionResult<ApiResponse>> CreateTypeOfAnimal([FromBody] AnimalTypeDto animalTypeDto)
         {
             try
@@ -97,8 +96,7 @@ namespace DomiesAPI.Controllers
         }
 
         [HttpPatch("{id}")]
-        [Authorize(Roles = "Manager")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Manager, Admin")]
         public async Task<ActionResult<ApiResponse>> UpdateTypeOfAnimal(int id, [FromBody] AnimalTypeDto typeOfAnimalDto)
         {
             try
@@ -124,8 +122,7 @@ namespace DomiesAPI.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        [Authorize(Roles = "Manager")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Manager, Admin")]
         public async Task<ActionResult<ApiResponse>> DeleteTypeOfAnimal(int id)
         {
             try
